@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PacientesModule } from './pacientes/pacientes.module';
+import { OdontologosModule } from './odontologos/odontologos.module';
 
 @Module({
   imports: [
@@ -17,7 +19,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       entities: [__dirname + '*/**/entities/*.{ts|js}'],
       synchronize: true,
       autoLoadEntities: true,
-    }),],
+    }),
+    PacientesModule,
+    OdontologosModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
