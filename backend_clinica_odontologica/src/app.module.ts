@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TratamientosModule } from './tratamientos/tratamientos.module';
+import { PacientesModule } from './pacientes/pacientes.module';
+import { OdontologosModule } from './odontologos/odontologos.module';
+import { CitasModule } from './citas/citas.module';
+
 
 @Module({
   imports: [
@@ -19,7 +23,11 @@ import { TratamientosModule } from './tratamientos/tratamientos.module';
       synchronize: true,
       autoLoadEntities: true,
     }),
-    TratamientosModule,],
+    CitasModule,
+    TratamientosModule,
+    PacientesModule,
+    OdontologosModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
