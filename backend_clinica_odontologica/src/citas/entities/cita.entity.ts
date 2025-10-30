@@ -9,13 +9,13 @@ export class Cita {
     @PrimaryGeneratedColumn('identity')
     idCita: number;
 
-    @Column()
+    @Column({ name: 'id_paciente' })
     idPaciente: number;
 
-    @Column()
+    @Column({ name: 'id_odontologo' })
     idOdontologo: number;
 
-    @Column()
+    @Column({ name: 'id_tratamiento' })
     idTratamiento: number;
 
     @Column({ type: 'date' })
