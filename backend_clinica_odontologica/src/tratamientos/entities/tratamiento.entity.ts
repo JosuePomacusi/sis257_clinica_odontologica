@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Cita } from "src/citas/entities/cita.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('tratamientos')
 export class Tratamiento {
@@ -19,4 +20,7 @@ export class Tratamiento {
 
     @DeleteDateColumn({ name: 'fecha_eliminacion' })
     fechaEliminacion: Date;
+
+    @OneToMany(() => Cita, cita => cita.tratamiento)
+    citas: Cita[];
 }

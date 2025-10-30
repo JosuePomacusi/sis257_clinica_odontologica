@@ -22,7 +22,7 @@ export class CitasService {
     }
 
     async findOne(id: number): Promise<Cita> {
-    const cita = await this.citasRepository.findOne({ where: { id_cita: id } });
+    const cita = await this.citasRepository.findOne({ where: { idCita: id } });
     if (!cita) {
         throw new NotFoundException(`Cita con ID ${id} no encontrada.`);
     }
