@@ -4,10 +4,11 @@ import { OdontologosServiciosController } from './odontologo_servicios.controlle
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OdontologoServicio } from './entities/odontologo_servicio.entity';
 import { Odontologo } from 'src/odontologos/entities/odontologo.entity';
-import { Servicio } from 'src/servicios/entities/servicio.entity';
+import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
+
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OdontologoServicio, Odontologo, Servicio])],
+  imports: [TypeOrmModule.forFeature([OdontologoServicio, Odontologo, Tratamiento])],
   controllers: [OdontologosServiciosController],
   providers: [OdontologosServiciosService],
 })

@@ -10,7 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OdontologoServicio } from './entities/odontologo_servicio.entity';
 import { In, Not, Repository } from 'typeorm';
 import { Odontologo } from 'src/odontologos/entities/odontologo.entity';
-import { Servicio } from 'src/servicios/entities/servicio.entity';
+import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
+
 
 @Injectable()
 export class OdontologosServiciosService {
@@ -19,14 +20,14 @@ export class OdontologosServiciosService {
     private odontologoServicioRepository: Repository<OdontologoServicio>,
     @InjectRepository(Odontologo)
     private odontologoRepository: Repository<Odontologo>,
-    @InjectRepository(Servicio)
-    private servicioRepository: Repository<Servicio>,
+    @InjectRepository(Tratamiento)
+    private tratamientoRepository: Repository<Tratamiento>,
   ) {}
 
   async create(
     createOdontologoServicioDto: CreateOdontologoServicioDto,
   ): Promise<OdontologoServicio> {
-    const { odontologoId, servicioId } = createOdontologoServicioDto;
+    const { odontologoId, tratamientoId } = createOdontologoServicioDto;
 
     // Verificar si el odontólogo existe
     const odontologoExistente = await this.odontologoRepository.findOneBy({
@@ -37,24 +38,24 @@ export class OdontologosServiciosService {
     }
 
     // Verificar si el servicio existe
-    const servicioExistente = await this.servicioRepository.findOneBy({
-      id: servicioId,
+    const tratamientoExistente = await this.tratamientoRepository.findOneBy({
+      id: tratamientoId,
     });
-    if (!servicioExistente) {
-      throw new NotFoundException(`El servicio con ID ${servicioId} no existe`);
+    if (!tratamientoExistente) {
+      throw new NotFoundException(`El servicio con ID ${tratamientoId} no existe`);
     }
 
     const existe = await this.odontologoServicioRepository.findOne({
-      where: { odontologoId: odontologoId, servicioId: servicioId },
+      where: { odontologoId: odontologoId, tratamientoId: tratamientoId },
     });
     if (existe)
       throw new ConflictException(
-        `El odontólogo ya está asociado con el servicio de nombre ${servicioExistente.nombre} se agrego los no repetidos. Gracias`,
+        `El odontólogo ya está asociado con el servicio de nombre ${tratamientoExistente.nombre} se agrego los no repetidos. Gracias`,
       );
 
     const odontologoServicio = new OdontologoServicio();
     odontologoServicio.odontologoId = createOdontologoServicioDto.odontologoId;
-    odontologoServicio.servicioId = createOdontologoServicioDto.servicioId;
+    odontologoServicio.tratamientoId = createOdontologoServicioDto.tratamientoId;
     return this.odontologoServicioRepository.save(odontologoServicio);
   }
 
@@ -91,8 +92,8 @@ export class OdontologosServiciosService {
     }
 
     // Actualizar el servicioId
-    if (updateOdontologoServicioDto.servicioId !== undefined) {
-      odontologoServicio.servicioId = updateOdontologoServicioDto.servicioId;
+    if (updateOdontologoServicioDto.tratamientoId !== undefined) {
+      odontologoServicio.tratamientoId = updateOdontologoServicioDto.tratamientoId;
     }
 
     // Guardar los cambios
@@ -106,13 +107,13 @@ export class OdontologosServiciosService {
     return this.odontologoServicioRepository.softRemove(odontologoServicio);
   }
 
-  async eliminarRelacion(odontologoId: number, servicioId: number): Promise<boolean> {
-    console.log('Intentando eliminar relación:', { odontologoId, servicioId });
+  async eliminarRelacion(odontologoId: number, tratamientoId: number): Promise<boolean> {
+    console.log('Intentando eliminar relación:', { odontologoId, servicioId: tratamientoId });
 
     try {
       // Buscar la relación
       const relacion = await this.odontologoServicioRepository.findOne({
-        where: { odontologoId, servicioId },
+        where: { odontologoId, tratamientoId: tratamientoId },
       });
 
       if (!relacion) {
@@ -136,30 +137,30 @@ export class OdontologosServiciosService {
 
     // Devuelve un array vacío si no hay servicios
     return odontologoServicios.map(item => ({
-      id: item.servicio.id,
-      nombre: item.servicio.nombre,
-      descripcion: item.servicio.descripcion,
-      precio: item.servicio.precio,
-      duracion: item.servicio.duracion,
+      id: item.tratamiento.id,
+      nombre: item.tratamiento.nombre,
+      descripcion: item.tratamiento.descripcion,
+      precio: item.tratamiento.precio,
+      duracion: item.tratamiento.duracion,
     }));
   }
 
   async findServiciosDisponibles(odontologoId: number): Promise<any> {
     // Obtener los IDs de los servicios ya asignados
-    const serviciosAsignados = await this.odontologoServicioRepository.find({
+    const tratamientosAsignados = await this.odontologoServicioRepository.find({
       where: { odontologoId },
       relations: ['servicio'],
     });
 
-    const serviciosAsignadosIds = serviciosAsignados.map(item => item.servicio.id);
+    const tratamientosAsignadosIds = tratamientosAsignados.map(item => item.tratamiento.id);
 
     // Obtener todos los servicios que NO están asignados
-    const serviciosDisponibles = await this.servicioRepository.find({
+    const tratamientosDisponibles = await this.tratamientoRepository.find({
       where: {
-        id: Not(In(serviciosAsignadosIds)), // Excluir los servicios asignados
+        id: Not(In(tratamientosAsignadosIds)), // Excluir los servicios asignados
       },
     });
 
-    return serviciosDisponibles;
+    return tratamientosDisponibles;
   }
 }

@@ -1,4 +1,5 @@
-import { Servicio } from 'src/servicios/entities/servicio.entity';
+
+import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
 import { Odontologo } from '../../odontologos/entities/odontologo.entity';
 import {
   Column,
@@ -20,7 +21,7 @@ export class OdontologoServicio {
   odontologoId: number;
 
   @Column('integer', { name: 'servicio_id' })
-  servicioId: number;
+  tratamientoId: number;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
@@ -35,7 +36,7 @@ export class OdontologoServicio {
   @JoinColumn({ name: 'odontologo_id', referencedColumnName: 'id' })
   odontologo: Odontologo;
 
-  @ManyToOne(() => Servicio, servicio => servicio.odontologo_servicios)
-  @JoinColumn({ name: 'servicio_id', referencedColumnName: 'id' })
-  servicio: Servicio;
+  @ManyToOne(() => Tratamiento, tratamiento => tratamiento.odontologo_servicios)
+  @JoinColumn({ name: 'tratamiento_id', referencedColumnName: 'id' })
+  tratamiento: Tratamiento;
 }

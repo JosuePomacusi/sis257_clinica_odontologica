@@ -8,33 +8,56 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class TratamientosService {
   constructor(
-    @InjectRepository(Tratamiento) private tratamientosRepository: Repository<Tratamiento>,
+    @InjectRepository(Tratamiento)
+    private tratamientosRepository: Repository<Tratamiento>,
   ) {}
 
   async create(createTratamientoDto: CreateTratamientoDto): Promise<Tratamiento> {
-    const existente = await this.tratamientosRepository.findOneBy({
-      descripcion: createTratamientoDto.descripcion.trim(),
+    const buscarRepetidos = await this.tratamientosRepository.findOne({
+      where: {
+        nombre: createTratamientoDto.nombre,
+      },
     });
-    if (existente) throw new ConflictException('Ya existe un tratamiento con esa descripción');
 
-    const tratamiento = this.tratamientosRepository.create(createTratamientoDto);
+    if (buscarRepetidos)
+      throw new ConflictException('El servicio con ese nombre ya existe');
+
+    const tratamiento = new Tratamiento();
+    tratamiento.nombre = createTratamientoDto.nombre.trim();
+    tratamiento.descripcion = createTratamientoDto.descripcion.trim();
+    tratamiento.precio = createTratamientoDto.precio;
+    tratamiento.duracion = createTratamientoDto.duracion;
+
     return this.tratamientosRepository.save(tratamiento);
   }
 
   async findAll(): Promise<Tratamiento[]> {
-    return this.tratamientosRepository.find({ order: { descripcion: 'ASC' } });
+    return this.tratamientosRepository.find();
   }
 
   async findOne(id: number): Promise<Tratamiento> {
     const tratamiento = await this.tratamientosRepository.findOneBy({ id });
-    if (!tratamiento) throw new NotFoundException('Tratamiento no encontrado');
+    if (!tratamiento) throw new ConflictException('El servicio no existe');
+
     return tratamiento;
   }
 
-  async update(id: number, updateTratamientoDto: UpdateTratamientoDto): Promise<Tratamiento> {
+  async findByOdontologo(idOdontologo: number): Promise<Tratamiento[]> {
+    return this.tratamientosRepository
+      .createQueryBuilder('tratamiento')
+      .innerJoin('servicio.odontologo_servicios', 'odontologo_servicios')
+      .innerJoin('odontologo_servicios.odontologo', 'odontologo')
+      .where('odontologo.id = :idOdontologo', { idOdontologo })
+      .getMany();
+  }
+
+  async update(
+    id: number,
+    updateTratamientoDto: UpdateTratamientoDto,
+  ): Promise<Tratamiento> {
     const tratamiento = await this.findOne(id);
-    Object.assign(tratamiento, updateTratamientoDto);
-    return this.tratamientosRepository.save(tratamiento);
+    const tratamientoUpdate = Object.assign(tratamiento, updateTratamientoDto);
+    return this.tratamientosRepository.save(tratamientoUpdate);
   }
 
   async remove(id: number): Promise<Tratamiento> {

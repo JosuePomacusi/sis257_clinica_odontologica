@@ -10,5 +10,5 @@ export class CreateOdontologoServicioDto {
   @ApiProperty()
   @IsDefined({ message: 'El campo servicio_id es obligatorio' })
   @IsNumber({}, { message: 'El campo servicio_id debe ser de tipo number' })
-  readonly servicioId: number;
+  readonly tratamientoId: number;
 }

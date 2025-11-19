@@ -22,8 +22,16 @@ export class TratamientosController {
     return this.tratamientosService.findOne(+id);
   }
 
+  @Get('odontologo/:idOdontologo')
+  findByOdontologo(@Param('idOdontologo') idOdontologo: string) {
+    return this.tratamientosService.findByOdontologo(+idOdontologo);
+  }
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTratamientoDto: UpdateTratamientoDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTratamientoDto: UpdateTratamientoDto,
+  ) {
     return this.tratamientosService.update(+id, updateTratamientoDto);
   }
 
