@@ -11,10 +11,9 @@ import { RolesModule } from './roles/roles.module';
 import { OdontologoServiciosModule } from './odontologo_servicios/odontologo_servicios.module';
 import { HorariosModule } from './horarios/horarios.module';
 
-
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
