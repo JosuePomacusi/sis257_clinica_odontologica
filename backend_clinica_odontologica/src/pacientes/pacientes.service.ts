@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,9 +7,7 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class PacientesService {
-  constructor(
-    @InjectRepository(Paciente) private pacientesRepository: Repository<Paciente>,
-  ) {}
+  constructor(@InjectRepository(Paciente) private pacientesRepository: Repository<Paciente>) {}
 
   async create(createPacienteDto: CreatePacienteDto): Promise<Paciente> {
     const existe = await this.pacientesRepository.findOneBy({
@@ -35,10 +29,7 @@ export class PacientesService {
     return paciente;
   }
 
-  async update(
-    id: number,
-    updatePacienteDto: UpdatePacienteDto,
-  ): Promise<Paciente> {
+  async update(id: number, updatePacienteDto: UpdatePacienteDto): Promise<Paciente> {
     const paciente = await this.findOne(id);
     Object.assign(paciente, updatePacienteDto);
     return this.pacientesRepository.save(paciente);

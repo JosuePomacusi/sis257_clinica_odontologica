@@ -31,11 +31,11 @@ export class OdontologoServicio {
   @DeleteDateColumn({ name: 'fecha_eliminacion', select: false })
   fechaEliminacion: Date;
 
-  @ManyToOne(() => Odontologo, (odontologo) => odontologo.odontologo_servicios)
+  @ManyToOne(() => Odontologo, odontologo => odontologo.odontologo_servicios)
   @JoinColumn({ name: 'odontologo_id', referencedColumnName: 'id' })
   odontologo: Odontologo;
 
-  @ManyToOne(() => Servicio, (servicio) => servicio.odontologo_servicios)
+  @ManyToOne(() => Servicio, servicio => servicio.odontologo_servicios)
   @JoinColumn({ name: 'servicio_id', referencedColumnName: 'id' })
   servicio: Servicio;
 }

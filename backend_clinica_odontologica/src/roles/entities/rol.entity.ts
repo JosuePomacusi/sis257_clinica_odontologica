@@ -1,4 +1,3 @@
-
 import { Odontologo } from 'src/odontologos/entities/odontologo.entity';
 import { Paciente } from 'src/pacientes/entities/paciente.entity';
 import {
@@ -28,9 +27,9 @@ export class Rol {
   @DeleteDateColumn({ name: 'fecha_eliminacion', select: false })
   fechaEliminacion: Date;
 
-  @OneToMany(() => Paciente, (paciente) => paciente.rol)
+  @OneToMany(() => Paciente, paciente => paciente.rol)
   pacientes: Paciente[];
 
-  @OneToMany(() => Odontologo, (odontologo) => odontologo.rol)
+  @OneToMany(() => Odontologo, odontologo => odontologo.rol)
   odontologos: Odontologo[];
 }

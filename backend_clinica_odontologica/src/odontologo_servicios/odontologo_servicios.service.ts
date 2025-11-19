@@ -33,9 +33,7 @@ export class OdontologosServiciosService {
       id: odontologoId,
     });
     if (!odontologoExistente) {
-      throw new NotFoundException(
-        `El odontólogo con ID ${odontologoId} no existe`,
-      );
+      throw new NotFoundException(`El odontólogo con ID ${odontologoId} no existe`);
     }
 
     // Verificar si el servicio existe
@@ -72,16 +70,13 @@ export class OdontologosServiciosService {
     }
 
     try {
-      const odontologoServicio =
-        await this.odontologoServicioRepository.findOneOrFail({
-          where: { id },
-          relations: ['odontologo', 'servicio'],
-        });
+      const odontologoServicio = await this.odontologoServicioRepository.findOneOrFail({
+        where: { id },
+        relations: ['odontologo', 'servicio'],
+      });
       return odontologoServicio;
     } catch (error) {
-      throw new ConflictException(
-        'El odontólogo no está asociado con este servicio',
-      );
+      throw new ConflictException('El odontólogo no está asociado con este servicio');
     }
   }
 
@@ -89,36 +84,29 @@ export class OdontologosServiciosService {
     id: number,
     updateOdontologoServicioDto: UpdateOdontologoServicioDto,
   ): Promise<OdontologoServicio> {
-    const odontologoServicio =
-      await this.odontologoServicioRepository.findOneBy({ id });
+    const odontologoServicio = await this.odontologoServicioRepository.findOneBy({ id });
 
     if (!odontologoServicio) {
-      throw new NotFoundException(
-        'La relación no existe para este odontólogo y servicio',
-      );
+      throw new NotFoundException('La relación no existe para este odontólogo y servicio');
     }
 
     // Actualizar el servicioId
-    odontologoServicio.servicioId = updateOdontologoServicioDto.servicioId;
+    if (updateOdontologoServicioDto.servicioId !== undefined) {
+      odontologoServicio.servicioId = updateOdontologoServicioDto.servicioId;
+    }
 
     // Guardar los cambios
     return this.odontologoServicioRepository.save(odontologoServicio);
   }
 
   async remove(id: number): Promise<OdontologoServicio> {
-    const odontologoServicio =
-      await this.odontologoServicioRepository.findOneBy({ id });
+    const odontologoServicio = await this.odontologoServicioRepository.findOneBy({ id });
     if (!odontologoServicio)
-      throw new ConflictException(
-        'El odontólogo no está asociado con este servicio',
-      );
+      throw new ConflictException('El odontólogo no está asociado con este servicio');
     return this.odontologoServicioRepository.softRemove(odontologoServicio);
   }
 
-  async eliminarRelacion(
-    odontologoId: number,
-    servicioId: number,
-  ): Promise<boolean> {
+  async eliminarRelacion(odontologoId: number, servicioId: number): Promise<boolean> {
     console.log('Intentando eliminar relación:', { odontologoId, servicioId });
 
     try {
@@ -145,9 +133,9 @@ export class OdontologosServiciosService {
       where: { odontologoId },
       relations: ['servicio'], // Solo necesitamos los servicios relacionados
     });
-  
+
     // Devuelve un array vacío si no hay servicios
-    return odontologoServicios.map((item) => ({
+    return odontologoServicios.map(item => ({
       id: item.servicio.id,
       nombre: item.servicio.nombre,
       descripcion: item.servicio.descripcion,
@@ -155,7 +143,6 @@ export class OdontologosServiciosService {
       duracion: item.servicio.duracion,
     }));
   }
-  
 
   async findServiciosDisponibles(odontologoId: number): Promise<any> {
     // Obtener los IDs de los servicios ya asignados
@@ -163,17 +150,16 @@ export class OdontologosServiciosService {
       where: { odontologoId },
       relations: ['servicio'],
     });
-  
+
     const serviciosAsignadosIds = serviciosAsignados.map(item => item.servicio.id);
-  
+
     // Obtener todos los servicios que NO están asignados
     const serviciosDisponibles = await this.servicioRepository.find({
       where: {
         id: Not(In(serviciosAsignadosIds)), // Excluir los servicios asignados
       },
     });
-  
+
     return serviciosDisponibles;
   }
-  
 }

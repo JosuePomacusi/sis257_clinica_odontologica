@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDefined,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsDefined, IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
 
 export class CreateCitaDto {
   @ApiProperty()

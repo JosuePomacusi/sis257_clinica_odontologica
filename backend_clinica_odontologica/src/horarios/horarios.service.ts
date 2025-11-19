@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -55,10 +51,7 @@ export class HorariosService {
     return horario;
   }
 
-  async update(
-    id: number,
-    updateHorarioDto: UpdateHorarioDto,
-  ): Promise<Horario> {
+  async update(id: number, updateHorarioDto: UpdateHorarioDto): Promise<Horario> {
     const horario = await this.horariosRepository.findOneBy({ id });
     if (!horario) {
       throw new NotFoundException(`Horario #${id} no encontrado`);

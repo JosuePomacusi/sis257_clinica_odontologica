@@ -1,8 +1,6 @@
-
 import { Odontologo } from 'src/odontologos/entities/odontologo.entity';
 import { Paciente } from 'src/pacientes/entities/paciente.entity';
 import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
-
 
 import {
   Column,
@@ -48,15 +46,15 @@ export class Cita {
   @DeleteDateColumn({ name: 'fecha_eliminacion', select: false })
   fechaEliminacion: Date;
 
-  @ManyToOne(() => Paciente, (paciente) => paciente.citas)
+  @ManyToOne(() => Paciente, paciente => paciente.citas)
   @JoinColumn({ name: 'paciente_id', referencedColumnName: 'id' })
   paciente: Paciente;
 
-  @ManyToOne(() => Odontologo, (odontologo) => odontologo.citas)
+  @ManyToOne(() => Odontologo, odontologo => odontologo.citas)
   @JoinColumn({ name: 'odontologo_id', referencedColumnName: 'id' })
   odontologo: Odontologo;
 
-  @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.citas)
+  @ManyToOne(() => Tratamiento, tratamiento => tratamiento.citas)
   @JoinColumn({ name: 'tratamiento_id', referencedColumnName: 'id' })
   tratamiento: Tratamiento;
 }

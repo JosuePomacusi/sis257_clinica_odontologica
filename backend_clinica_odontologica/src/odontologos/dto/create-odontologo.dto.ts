@@ -1,8 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateOdontologoDto {
   @IsNotEmpty({ message: 'El campo Nombre es obligatorio' })

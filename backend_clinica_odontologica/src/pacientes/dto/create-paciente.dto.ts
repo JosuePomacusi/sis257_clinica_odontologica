@@ -1,10 +1,4 @@
-import {
-  IsDateString,
-  IsDefined,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsDateString, IsDefined, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreatePacienteDto {
   @IsNotEmpty({ message: 'El campo Nombre es obligatorio' })
@@ -15,10 +9,7 @@ export class CreatePacienteDto {
   readonly nombre: string;
 
   @IsDefined({ message: 'El campo Fecha de Nacimiento es obligatorio' })
-  @IsDateString(
-    {},
-    { message: 'El campo Fecha de Nacimiento debe ser de tipo fecha válida' },
-  )
+  @IsDateString({}, { message: 'El campo Fecha de Nacimiento debe ser de tipo fecha válida' })
   readonly fechaNacimiento: Date;
 
   @IsNotEmpty({ message: 'El campo Teléfono es obligatorio' })

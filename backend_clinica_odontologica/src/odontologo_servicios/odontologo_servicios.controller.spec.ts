@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OdontologoServiciosController } from './odontologo_servicios.controller';
-import { OdontologoServiciosService } from './odontologo_servicios.service';
+import { OdontologosServiciosController } from './odontologo_servicios.controller';
+import { OdontologosServiciosService } from './odontologo_servicios.service';
 
-describe('OdontologoServiciosController', () => {
-  let controller: OdontologoServiciosController;
+describe('OdontologosServiciosController', () => {
+  let controller: OdontologosServiciosController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [OdontologoServiciosController],
-      providers: [OdontologoServiciosService],
+      controllers: [OdontologosServiciosController],
+      providers: [OdontologosServiciosService],
     }).compile();
 
-    controller = module.get<OdontologoServiciosController>(OdontologoServiciosController);
+    controller = module.get<OdontologosServiciosController>(OdontologosServiciosController);
   });
 
   it('should be defined', () => {

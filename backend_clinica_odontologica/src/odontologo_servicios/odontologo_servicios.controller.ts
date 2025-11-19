@@ -10,7 +10,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { OdontologosServiciosService } from './odontologos_servicios.service';
+import { OdontologosServiciosService } from './odontologo_servicios.service';
 import { CreateOdontologoServicioDto } from './dto/create-odontologo_servicio.dto';
 import { UpdateOdontologoServicioDto } from './dto/update-odontologo_servicio.dto';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -20,9 +20,7 @@ import { OdontologoServicio } from './entities/odontologo_servicio.entity';
 @ApiBearerAuth()
 @Controller('odontologos_servicios')
 export class OdontologosServiciosController {
-  constructor(
-    private readonly odontologoServiciosService: OdontologosServiciosService,
-  ) {}
+  constructor(private readonly odontologoServiciosService: OdontologosServiciosService) {}
 
   @Post()
   create(@Body() createOdontologoServicioDto: CreateOdontologoServicioDto) {
@@ -34,7 +32,6 @@ export class OdontologosServiciosController {
     return this.odontologoServiciosService.findAll();
   }
 
-
   @Get('mis-servicios')
   async findMisServicios(@Req() req: any) {
     const odontologoId = req.user.id; // Extraer el ID del usuario autenticado
@@ -45,7 +42,7 @@ export class OdontologosServiciosController {
     const odontologoId = req.user.id;
     return this.odontologoServiciosService.findServiciosDisponibles(odontologoId);
   }
-  
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<OdontologoServicio> {
     const parsedId = parseInt(id, 10);
@@ -60,10 +57,7 @@ export class OdontologosServiciosController {
     @Param('id') id: string,
     @Body() updateOdontologoServicioDto: UpdateOdontologoServicioDto,
   ) {
-    return this.odontologoServiciosService.update(
-      +id,
-      updateOdontologoServicioDto,
-    );
+    return this.odontologoServiciosService.update(+id, updateOdontologoServicioDto);
   }
 
   @Delete(':id')
@@ -77,23 +71,18 @@ export class OdontologosServiciosController {
     @Param('servicioId') servicioId: number,
   ) {
     try {
-      const result =
-        await this.odontologoServiciosService.eliminarRelacion(
-          odontologoId,
-          servicioId,
-        );
+      const result = await this.odontologoServiciosService.eliminarRelacion(
+        odontologoId,
+        servicioId,
+      );
 
       if (!result) {
-        throw new BadRequestException(
-          'La relación no fue encontrada o ya fue eliminada',
-        );
+        throw new BadRequestException('La relación no fue encontrada o ya fue eliminada');
       }
 
       return { message: 'Relación eliminada correctamente' };
     } catch (error) {
-      throw new BadRequestException(
-        error.message || 'Error al eliminar la relación',
-      );
+      throw new BadRequestException(error.message || 'Error al eliminar la relación');
     }
   }
 }
