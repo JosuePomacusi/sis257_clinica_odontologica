@@ -12,7 +12,6 @@ import { In, Not, Repository } from 'typeorm';
 import { Odontologo } from 'src/odontologos/entities/odontologo.entity';
 import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
 
-
 @Injectable()
 export class OdontologosServiciosService {
   constructor(

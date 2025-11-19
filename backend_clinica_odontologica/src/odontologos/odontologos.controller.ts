@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
 import { OdontologosService } from './odontologos.service';
 import { CreateOdontologoDto } from './dto/create-odontologo.dto';
 import { UpdateOdontologoDto } from './dto/update-odontologo.dto';
@@ -29,11 +40,7 @@ export class OdontologosController {
     }
 
     // Llama al servicio para cambiar la contraseña
-    return await this.odontologosService.cambiarPassword(
-      userId,
-      passwordActual,
-      nuevaPassword,
-    );
+    return await this.odontologosService.cambiarPassword(userId, passwordActual, nuevaPassword);
   }
 
   @Post()
@@ -53,10 +60,7 @@ export class OdontologosController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateOdontologoDto: UpdateOdontologoDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateOdontologoDto: UpdateOdontologoDto) {
     return this.odontologosService.update(+id, updateOdontologoDto);
   }
 

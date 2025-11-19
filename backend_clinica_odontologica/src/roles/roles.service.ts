@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,12 +15,9 @@ export class RolesService {
   async create(createRoleDto: CreateRolDto): Promise<Rol> {
     const { nombre_rol } = createRoleDto;
 
-    if (
-      !nombre_rol ||
-      (nombre_rol !== 'odontologo' && nombre_rol !== 'cliente')
-    ) {
+    if (!nombre_rol || (nombre_rol !== 'odontologo' && nombre_rol !== 'paciente')) {
       throw new ConflictException(
-        'El campo rol es obligatorio y debe ser "odontologo" o "cliente"',
+        'El campo rol es obligatorio y debe ser "odontologo" o "paciente"',
       );
     }
 

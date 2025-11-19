@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateOdontologoDto } from './dto/create-odontologo.dto';
 import { UpdateOdontologoDto } from './dto/update-odontologo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,8 +22,7 @@ export class OdontologosService {
       where: { email: createOdontologoDto.email },
     });
 
-    if (buscarRepetidos)
-      throw new ConflictException('El odontólogo con ese email ya existe');
+    if (buscarRepetidos) throw new ConflictException('El odontólogo con ese email ya existe');
 
     const odontologo = new Odontologo();
     odontologo.nombre = createOdontologoDto.nombre.trim();
@@ -49,10 +53,7 @@ export class OdontologosService {
     return this.findOne(id);
   }
 
-  async update(
-    id: number,
-    updateOdontologoDto: UpdateOdontologoDto,
-  ): Promise<Odontologo> {
+  async update(id: number, updateOdontologoDto: UpdateOdontologoDto): Promise<Odontologo> {
     const Odontologo = await this.findOne(id);
     const odontologoUpdate = Object.assign(Odontologo, updateOdontologoDto);
     return this.odontologosRepository.save(odontologoUpdate);
@@ -70,17 +71,17 @@ export class OdontologosService {
       select: ['id', 'nombre', 'email', 'password'], // Campos seleccionados
       relations: ['rol'], // Incluye la relación con el rol
     });
-  
+
     if (!emailOk) {
       return null; // Retorna null si no encuentra el odontólogo
     }
-  
+
     // Validamos la contraseña
     const isPasswordValid = await emailOk.validatePassword(clave);
     if (!isPasswordValid) {
       return null; // Retorna null si la contraseña no es válida
     }
-  
+
     return emailOk; // Devuelve el odontólogo con el rol cargado
   }
 
@@ -106,5 +107,5 @@ export class OdontologosService {
     await this.odontologosRepository.save(odontologo); // Guardar cambios (se hashea automáticamente en `hashPassword`)
 
     return 'La contraseña ha sido actualizada correctamente.';
-  } 
+  }
 }

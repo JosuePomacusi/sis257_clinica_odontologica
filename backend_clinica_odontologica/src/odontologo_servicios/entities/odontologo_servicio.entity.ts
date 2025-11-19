@@ -1,4 +1,3 @@
-
 import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
 import { Odontologo } from '../../odontologos/entities/odontologo.entity';
 import {

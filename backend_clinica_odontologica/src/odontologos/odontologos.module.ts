@@ -8,5 +8,6 @@ import { Odontologo } from './entities/odontologo.entity';
   imports: [TypeOrmModule.forFeature([Odontologo])],
   controllers: [OdontologosController],
   providers: [OdontologosService],
+  exports: [OdontologosService],
 })
 export class OdontologosModule {}

@@ -41,9 +41,9 @@ export class CreatePacienteDto {
   @IsNotEmpty({ message: 'El campo password es obligatorio' })
   @IsString({ message: 'El campo password debe ser un string o cadena' })
   @MaxLength(250, {
-     message: 'El campo password debe tener un máximo de 50 caracteres',
-   })
-   readonly password: string;
+    message: 'El campo password debe tener un máximo de 50 caracteres',
+  })
+  readonly password: string;
 
   @ApiProperty()
   @IsNotEmpty({ message: 'El campo telefono es obligatorio' })

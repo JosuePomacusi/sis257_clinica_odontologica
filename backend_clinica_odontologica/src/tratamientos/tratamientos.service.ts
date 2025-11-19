@@ -19,8 +19,7 @@ export class TratamientosService {
       },
     });
 
-    if (buscarRepetidos)
-      throw new ConflictException('El servicio con ese nombre ya existe');
+    if (buscarRepetidos) throw new ConflictException('El servicio con ese nombre ya existe');
 
     const tratamiento = new Tratamiento();
     tratamiento.nombre = createTratamientoDto.nombre.trim();
@@ -51,10 +50,7 @@ export class TratamientosService {
       .getMany();
   }
 
-  async update(
-    id: number,
-    updateTratamientoDto: UpdateTratamientoDto,
-  ): Promise<Tratamiento> {
+  async update(id: number, updateTratamientoDto: UpdateTratamientoDto): Promise<Tratamiento> {
     const tratamiento = await this.findOne(id);
     const tratamientoUpdate = Object.assign(tratamiento, updateTratamientoDto);
     return this.tratamientosRepository.save(tratamientoUpdate);

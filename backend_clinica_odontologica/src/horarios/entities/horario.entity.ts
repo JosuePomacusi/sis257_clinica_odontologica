@@ -36,7 +36,7 @@ export class Horario {
   @DeleteDateColumn({ name: 'fecha_eliminacion', select: false })
   fechaEliminacion: Date;
 
-  @ManyToOne(() => Odontologo, (odontologo) => odontologo.horarios)
+  @ManyToOne(() => Odontologo, odontologo => odontologo.horarios)
   @JoinColumn({ name: 'odontologo_id', referencedColumnName: 'id' })
   odontologo: Odontologo;
 }

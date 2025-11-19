@@ -69,8 +69,8 @@ export class Odontologo {
     }
   }
 
-   // Implementación de la validación de la contraseña
-   async validatePassword(plainPassword: string): Promise<boolean> {
+  // Implementación de la validación de la contraseña
+  async validatePassword(plainPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, this.password);
   }
 

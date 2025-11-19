@@ -28,10 +28,7 @@ export class TratamientosController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTratamientoDto: UpdateTratamientoDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateTratamientoDto: UpdateTratamientoDto) {
     return this.tratamientosService.update(+id, updateTratamientoDto);
   }
 
