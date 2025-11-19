@@ -1,53 +1,62 @@
-import { Odontologo } from "src/odontologos/entities/odontologo.entity";
-import { Paciente } from "src/pacientes/entities/paciente.entity";
-import { Tratamiento } from "src/tratamientos/entities/tratamiento.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+import { Odontologo } from 'src/odontologos/entities/odontologo.entity';
+import { Paciente } from 'src/pacientes/entities/paciente.entity';
+import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
+
+
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('citas')
 export class Cita {
+  @PrimaryGeneratedColumn('identity')
+  id: number;
 
-    @PrimaryGeneratedColumn('identity')
-    idCita: number;
+  @Column('varchar', { length: 50 })
+  estado: string;
 
-    @Column({ name: 'id_paciente' })
-    idPaciente: number;
+  @Column('integer', { name: 'cliente_id' })
+  clienteId: number;
 
-    @Column({ name: 'id_odontologo' })
-    idOdontologo: number;
+  @Column('integer', { name: 'odontologo_id' })
+  odontologoId: number;
 
-    @Column({ name: 'id_tratamiento' })
-    idTratamiento: number;
+  @Column('integer', { name: 'servicio_id' })
+  servicioId: number;
 
-    @Column({ type: 'date' })
-    fecha: Date;
+  // Agregado para manejar un rango de tiempo
+  @Column('timestamp', { name: 'fecha_hora_inicio' })
+  fechaHoraInicio: Date;
 
-    @Column({ type: 'time' })
-    hora: string;
+  @Column('timestamp', { name: 'fecha_hora_fin' })
+  fechaHoraFin: Date;
 
-    @Column('varchar', { length: 20 })
-    estado: string;
+  @CreateDateColumn({ name: 'fecha_creacion' })
+  fechaCreacion: Date;
 
-    @Column('varchar', { nullable: true, length: 255 })
-    motivo: string;
+  @UpdateDateColumn({ name: 'fecha_modificacion' })
+  fechaModificacion: Date;
 
-    @CreateDateColumn({ name: 'fecha_creacion' })
-    fechaCreacion: Date;
+  @DeleteDateColumn({ name: 'fecha_eliminacion', select: false })
+  fechaEliminacion: Date;
 
-    @UpdateDateColumn({ name: 'fecha_modificacion' })
-    fechaModificacion: Date;
+  @ManyToOne(() => Paciente, (paciente) => paciente.citas)
+  @JoinColumn({ name: 'paciente_id', referencedColumnName: 'id' })
+  paciente: Paciente;
 
-    @DeleteDateColumn({ name: 'fecha_eliminacion' })
-    fechaEliminacion: Date;
+  @ManyToOne(() => Odontologo, (odontologo) => odontologo.citas)
+  @JoinColumn({ name: 'odontologo_id', referencedColumnName: 'id' })
+  odontologo: Odontologo;
 
-    @ManyToOne(() => Paciente, paciente => paciente.citas)
-    @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
-    paciente: Paciente;
-
-    @ManyToOne(() => Odontologo, odontologo => odontologo.citas)
-    @JoinColumn({ name: 'id_odontologo', referencedColumnName: 'id' })
-    odontologo: Odontologo;
-
-    @ManyToOne(() => Tratamiento, tratamiento => tratamiento.citas)
-    @JoinColumn({ name: 'id_tratamiento', referencedColumnName: 'id' })
-    tratamiento: Tratamiento;
+  @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.citas)
+  @JoinColumn({ name: 'tratamiento_id', referencedColumnName: 'id' })
+  tratamiento: Tratamiento;
 }

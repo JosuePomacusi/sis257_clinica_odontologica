@@ -1,41 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, IsNotEmpty, IsDateString, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsDefined,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateCitaDto {
-    @ApiProperty()
-    @IsInt({ message: 'El id paciente es de tipo numerico' })
-    @IsNotEmpty({ message: 'El campo id paciente es obligatorio' })
-    idPaciente: number;
+  @ApiProperty()
+  @IsNotEmpty({ message: 'El campo estado es obligatorio' })
+  @IsString({ message: 'El campo estado debe ser un string o cadena' })
+  @MaxLength(50, {
+    message: 'El campo estado debe tener un máximo de 50 caracteres',
+  })
+  readonly estado: string;
 
-    @ApiProperty()
-    @IsInt({ message: 'El id odontologo es de tipo numerico' })
-    @IsNotEmpty({ message: 'El campo id odontologo es obligatorio' })
-    idOdontologo: number;
+  @ApiProperty()
+  @IsDefined({ message: 'El campo fecha de inicio es obligatorio' })
+  readonly fechaHoraInicio: Date;
 
-    @ApiProperty()
-    @IsInt({ message: 'El id tartamiento es de tipo numerico' })
-    @IsNotEmpty({ message: 'El campo id  tratamiento es obligatorio' })
-    idTratamiento: number;
+  @ApiProperty()
+  @IsDefined({ message: 'El campo fecha de fin es obligatorio' })
+  readonly fechaHoraFin: Date;
 
-    @ApiProperty()
-    @IsDateString()
-    @IsNotEmpty({ message: 'El campo fecha es obligatoria' })
-    fecha: string;
+  @ApiProperty()
+  @IsDefined({ message: 'El campo cliente_id es obligatorio' })
+  @IsNumber({}, { message: 'El campo cliente_id debe ser de tipo number' })
+  readonly clienteId: number;
 
-    @ApiProperty()
-    @IsString({ message: 'La descripción debe ser texto' })
-    @IsNotEmpty({ message: 'El campo hora es obligatoria' })
-    hora: string;
+  @ApiProperty()
+  @IsDefined({ message: 'El campo odontologo_id es obligatorio' })
+  @IsNumber({}, { message: 'El campo odontologo_id debe ser de tipo number' })
+  readonly odontologoId: number;
 
-    @ApiProperty()
-    @IsString({ message: 'La descripción debe ser texto' })
-    @IsNotEmpty({ message: 'El campo estado es obligatorio' })
-    @MaxLength(20)
-    estado: string;
-
-    @ApiProperty()
-    @IsString()
-    @IsOptional()
-    @MaxLength(255)
-    motivo: string;
+  @ApiProperty()
+  @IsDefined({ message: 'El campo servicio_id es obligatorio' })
+  @IsNumber({}, { message: 'El campo servicio_id debe ser de tipo number' })
+  readonly servicioId: number;
 }

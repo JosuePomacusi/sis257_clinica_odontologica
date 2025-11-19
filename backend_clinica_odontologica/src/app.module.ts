@@ -7,6 +7,9 @@ import { TratamientosModule } from './tratamientos/tratamientos.module';
 import { PacientesModule } from './pacientes/pacientes.module';
 import { OdontologosModule } from './odontologos/odontologos.module';
 import { CitasModule } from './citas/citas.module';
+import { RolesModule } from './roles/roles.module';
+import { OdontologoServiciosModule } from './odontologo_servicios/odontologo_servicios.module';
+import { HorariosModule } from './horarios/horarios.module';
 
 
 @Module({
@@ -27,6 +30,9 @@ import { CitasModule } from './citas/citas.module';
     TratamientosModule,
     PacientesModule,
     OdontologosModule,
+    RolesModule,
+    OdontologoServiciosModule,
+    HorariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

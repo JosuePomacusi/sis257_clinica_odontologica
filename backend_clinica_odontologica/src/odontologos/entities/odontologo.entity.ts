@@ -1,4 +1,5 @@
 import { Cita } from 'src/citas/entities/cita.entity';
+import { Horario } from 'src/horarios/entities/horario.entity';
 import {
   Column,
   CreateDateColumn,
@@ -34,4 +35,7 @@ export class Odontologo {
 
   @OneToMany(() => Cita, cita => cita.odontologo)
   citas: Cita[];
+
+  @OneToMany(() => Horario, horario => horario.odontologo)
+  horarios: Horario[];
 }
