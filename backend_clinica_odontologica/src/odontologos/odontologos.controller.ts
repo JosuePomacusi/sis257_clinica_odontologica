@@ -9,7 +9,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class OdontologosController {
   constructor(private readonly odontologosService: OdontologosService) {}
 
-  @ApiBearerAuth()
   @Get('mi-perfil')
   async findAuthenticatedUser(@Req() req: any) {
     const userId = req.user.id; // Extrae el ID del usuario autenticado desde el token
@@ -17,7 +16,6 @@ export class OdontologosController {
   }
 
   @Post('cambiar-password')
-  @ApiBearerAuth()
   async cambiarPassword(
     @Req() req: any, // Usuario autenticado a través del token JWT
     @Body() body: { passwordActual: string; nuevaPassword: string }, // Campos enviados en el cuerpo
@@ -50,13 +48,11 @@ export class OdontologosController {
   }
 
   @Get(':id')
-  @ApiBearerAuth()
   findOne(@Param('id') id: string) {
     return this.odontologosService.findOne(+id);
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
   update(
     @Param('id') id: string,
     @Body() updateOdontologoDto: UpdateOdontologoDto,
@@ -65,7 +61,6 @@ export class OdontologosController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
   remove(@Param('id') id: string) {
     return this.odontologosService.remove(+id);
   }

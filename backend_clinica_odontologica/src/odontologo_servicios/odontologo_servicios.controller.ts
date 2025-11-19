@@ -17,7 +17,6 @@ import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { OdontologoServicio } from './entities/odontologo_servicio.entity';
 
 @ApiTags('Odontologos_Servicios')
-@ApiBearerAuth()
 @Controller('odontologos_servicios')
 export class OdontologosServiciosController {
   constructor(private readonly odontologoServiciosService: OdontologosServiciosService) {}

@@ -25,7 +25,7 @@ export class OdontologosService {
     odontologo.primerApellido = createOdontologoDto.primerApellido.trim();
     odontologo.segundoApellido = createOdontologoDto.segundoApellido.trim();
     odontologo.email = createOdontologoDto.email.trim();
-    odontologo.password = process.env.DEFAULT_PASSWORD;
+    odontologo.password = process.env.DEFAULT_PASSWORD!;
     odontologo.telefono = createOdontologoDto.telefono.trim();
     odontologo.direccion = createOdontologoDto.direccion.trim();
     odontologo.especialidad = createOdontologoDto.especialidad.trim();

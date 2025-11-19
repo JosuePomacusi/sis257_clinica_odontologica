@@ -25,7 +25,7 @@ export class PacientesService {
     paciente.primerApellido = createPacienteDto.primerApellido.trim();
     paciente.segundoApellido = createPacienteDto.segundoApellido.trim();
     paciente.email = createPacienteDto.email.trim();
-    paciente.password = process.env.DEFAULT_PASSWORD;
+    paciente.password = process.env.DEFAULT_PASSWORD!;
     paciente.telefono = createPacienteDto.telefono.trim();
     paciente.direccion = createPacienteDto.direccion.trim();
 

@@ -5,7 +5,6 @@ import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Horarios')
-@ApiBearerAuth()
 @Controller('horarios')
 export class HorariosController {
   constructor(private readonly horariosService: HorariosService) {}
