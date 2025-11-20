@@ -62,7 +62,7 @@ function onSubmit() {
         </form>
 
         <!-- Nuevo enlace para crear cuenta -->
-        <router-link to="/cliente-crear-cuenta" class="create-account-link">
+        <router-link to="/paciente-crear-cuenta" class="create-account-link">
           ¿No tienes una cuenta? <br> 
           <span>Crear una cuenta</span>
         </router-link>

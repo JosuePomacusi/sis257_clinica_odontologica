@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import http from '../../plugins/axios'
 import { onMounted, ref, computed } from 'vue'
-import type { Servicios } from '../../models/Servicios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import { useAuthStore } from '@/stores' // Store de autenticación
-import { useServicios } from '@/composables/useServicios'
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
+import { useTratamientos } from '@/composables/useTratamientos'
+import type { Tratamiento } from '@/models/Tratamientos'
 
 
 // Obtener el odontólogo autenticado
@@ -16,35 +16,35 @@ const toast = useToast()
 const odontologoLogueado = computed(() => authStore.user)
 
 // Usar el Composable 
-const { cargarServiciosDisponibles } = useServicios()
+const { cargarTratamientosDisponibles } = useTratamientos()
 
 // Definir las variables reactivas
-const servicios = ref<Servicios[]>([])
+const tratamientos = ref<Tratamiento[]>([])
 const nombreBusqueda = ref('')
 const emit = defineEmits(['edit'])
-const servicioDelete = ref<number | null>(null)
+const tratamientoDelete = ref<number | null>(null)
 const mostrarConfirmDialog = ref<boolean>(false)
 
 // Obtener la lista de servicios
 const obtenerLista = async () => {
   try {
-    const response = await http.get('odontologos_servicios/mis-servicios')
-    servicios.value = response.data
+    const response = await http.get('odontologos_tratamientos/mis-tratamientos')
+    tratamientos.value = response.data
   } catch (error) {
     console.error('Error obteniendo los datos:', error)
   }
 }
 
 // Computed para filtrar servicios por nombre
-const serviciosFiltrados = computed(() =>
-  servicios.value.filter(servicio =>
-    servicio.nombre.toLowerCase().includes(nombreBusqueda.value.toLowerCase()),
+const tratamientosFiltrados = computed(() =>
+  tratamientos.value.filter(tratamiento =>
+    tratamiento.nombre.toLowerCase().includes(nombreBusqueda.value.toLowerCase()),
   ),
 )
 
 // Función para mostrar el diálogo de confirmación de eliminación
-function mostrarEliminarConfirm(servicioId: number) {
-  servicioDelete.value = servicioId
+function mostrarEliminarConfirm(tratamientoId: number) {
+  tratamientoDelete.value = tratamientoId
   mostrarConfirmDialog.value = true
 }
 
@@ -62,24 +62,24 @@ async function eliminar() {
     return
   }
 
-  if (servicioDelete.value) {
+  if (tratamientoDelete.value) {
     try {
 
       await http.delete(
-        `odontologos_servicios/eliminar-relacion/${odontologoLogueado.value.id}/${servicioDelete.value}`,
+        `odontologos_tratamientos/eliminar-relacion/${odontologoLogueado.value.id}/${tratamientoDelete.value}`,
       )
       toast.add({
         severity: 'success',
-        summary: 'Servicio eliminado',
-        detail: 'El servicio ha sido eliminado correctamente.',
+        summary: 'Tratamiento eliminado',
+        detail: 'El tratamiento ha sido eliminado correctamente.',
         life: 3000
       })
-      await cargarServiciosDisponibles()
+      await cargarTratamientosDisponibles()
 
       obtenerLista() // Actualizar la lista después de eliminar
 
       // Emitir evento global de servicio eliminado 
-      const event = new CustomEvent('servicioEliminado') 
+      const event = new CustomEvent('tratamientoEliminado') 
       window.dispatchEvent(event)
 
       mostrarConfirmDialog.value = false
@@ -87,7 +87,7 @@ async function eliminar() {
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Hubo un problema al eliminar el servicio.',
+        detail: 'Hubo un problema al eliminar el tratamiento.',
         life: 3000
       })
     }
@@ -107,21 +107,21 @@ defineExpose({
     <!-- Campo de búsqueda -->
     <input
       v-model="nombreBusqueda"
-      placeholder="Buscar servicio por nombre"
+      placeholder="Buscar tratamiento por nombre"
       class="busqueda"
     />
 
     <!-- Contenedor de tarjetas -->
     <div class="tarjetas-grid">
       <div
-        v-for="servicio in serviciosFiltrados"
-        :key="servicio.id"
-        class="tarjeta-servicio"
+        v-for="tratamiento in tratamientosFiltrados"
+        :key="tratamiento.id"
+        class="tarjeta-tratamiento"
       >
-        <h3>{{ servicio.nombre }}</h3>
-        <p><strong>Descripción:</strong> {{ servicio.descripcion }}</p>
-        <p><strong>Precio:</strong> {{ servicio.precio }} Bs.</p>
-        <p><strong>Duración:</strong> {{ servicio.duracion }} min</p>
+        <h3>{{ tratamiento.nombre }}</h3>
+        <p><strong>Descripción:</strong> {{ tratamiento.descripcion }}</p>
+        <p><strong>Precio:</strong> {{ tratamiento.precio }} Bs.</p>
+        <p><strong>Duración:</strong> {{ tratamiento.duracion }} min</p>
 
         <!-- Botones de acción -->
         <div class="acciones">
@@ -129,7 +129,7 @@ defineExpose({
             icon="pi pi-trash"
             aria-label="Eliminar"
             class="boton-eliminar"
-            @click="mostrarEliminarConfirm(servicio.id)"
+            @click="mostrarEliminarConfirm(tratamiento.id)"
           />
         </div>
       </div>
@@ -141,7 +141,7 @@ defineExpose({
       header="Confirmar Eliminación"
       :style="{ width: '25rem' }"
     >
-      <p>¿Estás seguro de que deseas eliminar este servicio?</p>
+      <p>¿Estás seguro de que deseas eliminar este tratamiento?</p>
       <div class="flex justify-end gap-2">
         <Button
           type="button"
@@ -193,7 +193,7 @@ defineExpose({
 }
 
 /* Tarjeta de servicio */
-.tarjeta-servicio {
+.tarjeta-tratamiento {
   background-color: #ffffff;
   border: 1px solid #e3e3e3;
   border-radius: 10px;
@@ -205,13 +205,13 @@ defineExpose({
   text-align: start;
 }
 
-.tarjeta-servicio:hover {
+.tarjeta-tratamiento:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Título de la tarjeta */
-.tarjeta-servicio h3 {
+.tarjeta-tratamiento h3 {
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
   color: #2c3e50;
@@ -219,7 +219,7 @@ defineExpose({
 }
 
 /* Información del servicio */
-.tarjeta-servicio p {
+.tarjeta-tratamiento p {
   margin: 0.5rem 0;
   color: #555;
   font-size: 1rem;

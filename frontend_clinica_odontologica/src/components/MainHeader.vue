@@ -23,12 +23,12 @@ async function handleLogout() {
 
 // Opciones dinámicas del menú del usuario según el rol
 const userMenuItems = computed(() => {
-  if (authStore.role === 'cliente') {
+  if (authStore.rol === 'paciente') {
     return [
       {
         label: 'Ver Perfil',
         icon: 'pi pi-user',
-        command: () => router.push('/cliente-perfil'),
+        command: () => router.push('/paciente-perfil'),
       },
       {
         label: 'Salir',
@@ -36,7 +36,7 @@ const userMenuItems = computed(() => {
         command: () => (showConfirmLogout.value = true),
       },
     ];
-  } else if (authStore.role === 'odontologo') {
+  } else if (authStore.rol === 'odontologo') {
     return [
       {
         label: 'Ver Perfil',
@@ -71,7 +71,7 @@ const userMenuItems = computed(() => {
             <ul>
               <li>
                 <i class="ri-map-pin-add-line"></i>
-                <span>257 Calle Audiencia Frente a la plaza 25 de Mayo</span>
+                <span>257 Calle Abaroa 35</span>
               </li>
               <li>
                 <i class="ri-mail-unread-fill"></i>
@@ -129,25 +129,25 @@ const userMenuItems = computed(() => {
               </li>
 
               <!-- Pestañas visibles solo para clientes -->
-              <li v-if="authStore.token && authStore.role === 'cliente'">
+              <li v-if="authStore.token && authStore.rol === 'paciente'">
                 <router-link to="/citas">Mis Citas</router-link>
               </li>
 
               <!-- Pestañas visibles solo para odontólogos -->
-              <li v-if="authStore.token && authStore.role === 'odontologo'">
+              <li v-if="authStore.token && authStore.rol === 'odontologo'">
                 <router-link to="/citas">Ver Citas</router-link>
               </li>
-              <li v-if="authStore.token && authStore.role === 'odontologo'">
-                <router-link to="/odontologo_servicios">Servicios</router-link>
+              <li v-if="authStore.token && authStore.rol === 'odontologo'">
+                <router-link to="/odontologo_tratamientos">Tratamientos</router-link>
               </li>
-              <li v-if="authStore.token && authStore.role === 'odontologo'">
+              <li v-if="authStore.token && authStore.rol === 'odontologo'">
                 <router-link to="/odontologos">Odontólogos</router-link>
               </li>
-              <li v-if="authStore.token && authStore.role === 'cliente'">
+              <li v-if="authStore.token && authStore.rol === 'cliente'">
                 <router-link to="/odontologo-cards">Odontólogos</router-link>
               </li>
-              <li v-if="authStore.token && authStore.role === 'odontologo'">
-                <router-link to="/clientes">Clientes</router-link>
+              <li v-if="authStore.token && authStore.rol === 'odontologo'">
+                <router-link to="/pacientes">Pacientes</router-link>
               </li>
             </ul>
 
@@ -294,20 +294,20 @@ const userMenuItems = computed(() => {
           </li>
 
           <!-- Menú móvil - Pestañas dinámicas -->
-          <li v-if="authStore.token && authStore.role === 'cliente'">
+          <li v-if="authStore.token && authStore.rol === 'cliente'">
             <router-link to="/citas">Mis Citas</router-link>
           </li>
-          <li v-if="authStore.token && authStore.role === 'odontologo'">
+          <li v-if="authStore.token && authStore.rol === 'odontologo'">
             <router-link to="/citas">Ver Citas</router-link>
           </li>
-          <li v-if="authStore.token && authStore.role === 'odontologo'">
+          <li v-if="authStore.token && authStore.rol === 'odontologo'">
             <router-link to="/odontologos">Odontólogos</router-link>
           </li>
-          <li v-if="authStore.token && authStore.role === 'odontologo'">
-            <router-link to="/odontologo_servicios">Servicios</router-link>
+          <li v-if="authStore.token && authStore.rol === 'odontologo'">
+            <router-link to="/odontologo_tratamientos">Tratamiento</router-link>
           </li>
-          <li v-if="authStore.token && authStore.role === 'odontologo'">
-            <router-link to="/clientes">Clientes</router-link>
+          <li v-if="authStore.token && authStore.rol === 'odontologo'">
+            <router-link to="/pacientes">Pacientes</router-link>
           </li>
         </ul>
       </div>

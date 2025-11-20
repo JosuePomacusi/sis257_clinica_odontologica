@@ -1,4 +1,4 @@
-export interface Cliente {
+export interface Paciente {
   id: number
   nombre: string
   primerApellido: string

@@ -1,6 +1,7 @@
-import type { Cliente } from './Cliente'
 import type { Odontologo } from './Odontologo'
-import type { Servicios } from './Servicios'
+import type { Paciente } from './Paciente'
+import type { Tratamiento } from './Tratamientos'
+
 
 export interface Cita {
   id: number
@@ -12,5 +13,5 @@ export interface Cita {
   tratamientoId: number
   paciente: Paciente
   odontologo: Odontologo
-  tratamiento?: Tratamientos;
+  tratamiento?: Tratamiento
 }

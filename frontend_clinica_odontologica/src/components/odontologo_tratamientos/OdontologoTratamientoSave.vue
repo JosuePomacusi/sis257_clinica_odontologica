@@ -5,9 +5,9 @@ import Dialog from 'primevue/dialog'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
-import type { Servicios } from '../../models/Servicios'
-import type { Odontologo_servicio } from '../../models/Odontologo_servicio'
 import { useAuthStore } from '@/stores' // Store para autenticación
+import type { Tratamiento } from '@/models/Tratamientos'
+import type { Odontologo_tratamiento } from '@/models/Odontologo_tratamiento'
 
 // Obtener el odontólogo autenticado
 const authStore = useAuthStore()
@@ -23,9 +23,9 @@ const props = defineProps({
 const emit = defineEmits(['guardar', 'close'])
 
 // Estado reactivo
-const servicios = ref<Servicios[]>([]) // Servicios disponibles (no asignados)
-const serviciosAsignados = ref<number[]>([]) // IDs de servicios ya asignados
-const serviciosSeleccionados = ref<number[]>([]) // IDs de servicios seleccionados
+const tratamientos = ref<Tratamiento[]>([]) // Servicios disponibles (no asignados)
+const tratamientosAsignados = ref<number[]>([]) // IDs de servicios ya asignados
+const tratamientosSeleccionados = ref<number[]>([]) // IDs de servicios seleccionados
 
 // Computed para el estado del diálogo
 const dialogVisible = computed({
@@ -38,8 +38,8 @@ const dialogVisible = computed({
       // Recarga los servicios disponibles y asignados al abrir el diálogo
       if (odontologoLogueado.value?.id) {
         await Promise.all([
-          cargarServiciosAsignados(),
-          cargarServiciosDisponibles(),
+          cargarTratamietosAsignados(),
+          cargarTratamientosDisponibles(),
         ])
       }
     }
@@ -48,22 +48,22 @@ const dialogVisible = computed({
 
 // Reiniciar el formulario
 function resetFormulario() {
-  serviciosSeleccionados.value = [] // Limpia los servicios seleccionados
+  tratamientosSeleccionados.value = [] // Limpia los servicios seleccionados
 }
 
 // Cargar servicios disponibles
-async function cargarServiciosDisponibles() {
+async function cargarTratamientosDisponibles() {
   try {
     const response = await http.get(
-      'odontologos_servicios/mis-servicios-disponibles',
+      'odontologos_tratamientos/mis-tratamientos-disponibles',
     )
-    servicios.value = response.data // Aquí se actualiza con los servicios no asignados
+    tratamientos.value = response.data // Aquí se actualiza con los servicios no asignados
   } catch (error) {
-    console.error('Error al cargar servicios disponibles:', error)
+    console.error('Error al cargar tratamientos disponibles:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Hubo un problema al cargar los servicios disponibles.',
+      detail: 'Hubo un problema al cargar los tratamientos disponibles.',
       life: 3000,
     })
   }
@@ -71,20 +71,20 @@ async function cargarServiciosDisponibles() {
 }
 
 // Cargar servicios ya asignados al odontólogo autenticado
-async function cargarServiciosAsignados() {
+async function cargarTratamietosAsignados() {
   if (!odontologoLogueado.value?.id) return
 
   try {
-    const response = await http.get('odontologos_servicios/mis-servicios')
-    serviciosAsignados.value = response.data.map(
-      (item: Odontologo_servicio) => item.servicio_id,
+    const response = await http.get('odontologos_tratamientos/mis-tratamientos')
+    tratamientosAsignados.value = response.data.map(
+      (item: Odontologo_tratamiento) => item.tratamiento_id,
     )
   } catch (error) {
-    console.error('Error al cargar servicios asignados:', error)
+    console.error('Error al cargar tratamientos asignados:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Hubo un problema al cargar los servicios asignados.',
+      detail: 'Hubo un problema al cargar los tratamientos asignados.',
       life: 3000,
     })
   }
@@ -93,11 +93,11 @@ async function cargarServiciosAsignados() {
 // Guardar relaciones
 async function handleSave() {
   try {
-    if (serviciosSeleccionados.value.length === 0) {
+    if (tratamientosSeleccionados.value.length === 0) {
       toast.add({
         severity: 'warn',
         summary: 'Advertencia',
-        detail: 'Debe seleccionar al menos un servicio.',
+        detail: 'Debe seleccionar al menos un tratamieto.',
         life: 3000,
       })
       return
@@ -105,21 +105,21 @@ async function handleSave() {
 
     // Crear relaciones para cada servicio seleccionado
     await Promise.all(
-      serviciosSeleccionados.value.map(servicioId =>
-        http.post('odontologos_servicios', {
+      tratamientosSeleccionados.value.map(tratamientoId =>
+        http.post('odontologos_tratamientos', {
           odontologoId: odontologoLogueado.value?.id ?? 0,
-          servicioId,
+          tratamientoId: tratamientoId,
         }),
       ),
     )
 
     // Actualizar los servicios disponibles después de guardar
-    await cargarServiciosDisponibles()
+    await cargarTratamientosDisponibles()
 
     toast.add({
       severity: 'success',
       summary: 'Éxito',
-      detail: 'Servicio añadido correctamente.',
+      detail: 'Tratamientos añadido correctamente.',
       life: 3000,
     })
     emit('guardar')
@@ -139,18 +139,18 @@ async function handleSave() {
 }
 
 // Escuchar el evento global de servicio eliminado
-const onServicioEliminado = async () => {
-  await cargarServiciosDisponibles()
+const onTratamientoEliminado = async () => {
+  await cargarTratamientosDisponibles()
 }
 // Cargar servicios disponibles y asignados al odontólogo al montar el componente
 onMounted(() => {
-  window.addEventListener('servicioEliminado', onServicioEliminado)
-  window.addEventListener('servicioCreado', onServicioEliminado)
+  window.addEventListener('tratamientoEliminado', onTratamientoEliminado)
+  window.addEventListener('tratamientoCreado', onTratamientoEliminado)
 })
 // Limpiar los eventos al desmontar el componente
 onBeforeUnmount(() => {
-  window.removeEventListener('servicioEliminado', onServicioEliminado)
-  window.removeEventListener('servicioCreado', onServicioEliminado)
+  window.removeEventListener('tratamientoEliminado', onTratamientoEliminado)
+  window.removeEventListener('tratamientoCreado', onTratamientoEliminado)
 })
 
 // Montar datos iniciales
@@ -158,8 +158,8 @@ onMounted(async () => {
   if (odontologoLogueado.value?.id) {
     // Cargar los servicios disponibles y los asignados al odontólogo
     await Promise.all([
-      cargarServiciosAsignados(),
-      cargarServiciosDisponibles(),
+      cargarTratamietosAsignados(),
+      cargarTratamientosDisponibles(),
     ])
   }
 })
@@ -167,7 +167,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Dialog v-model:visible="dialogVisible" header="Relacionar Servicios" style="width: 30rem">
+  <Dialog v-model:visible="dialogVisible" header="Relacionar Tratamientos" style="width: 30rem">
     <div class="mb-4">
       <label class="font-semibold mb-2">Odontólogo</label>
       <div v-if="odontologoLogueado" class="font-semibold text-blue-500">
@@ -178,14 +178,14 @@ onMounted(async () => {
     </div>
 
     <div class="mb-4">
-      <label class="font-semibold mb-2">Servicios</label>
-      <div v-if="servicios.length">
-        <div v-for="servicio in servicios" :key="servicio.id" class="flex items-center">
-          <Checkbox v-model="serviciosSeleccionados" :value="servicio.id" />
-          <span class="ml-2">{{ servicio.nombre }}</span>
+      <label class="font-semibold mb-2">Tratamietos</label>
+      <div v-if="tratamientos.length">
+        <div v-for="tratamiento in tratamientos" :key="tratamiento.id" class="flex items-center">
+          <Checkbox v-model="tratamientosSeleccionados" :value="tratamiento.id" />
+          <span class="ml-2">{{ tratamiento.nombre }}</span>
         </div>
       </div>
-      <p v-else class="text-red-500">No hay servicios para seleccionar</p>
+      <p v-else class="text-red-500">No hay tratamietos para seleccionar</p>
     </div>
 
     <div class="flex justify-end gap-2">

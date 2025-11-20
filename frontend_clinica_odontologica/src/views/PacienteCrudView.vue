@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import { ref } from 'vue'
-import ClienteCrudList from '../components/clientes_crud/ClientesCrudList.vue'
-import ClienteCrudSave from '../components/clientes_crud/ClienteCrudSave.vue'
+import PacienteCrudList from '../components/pacientes_crud/PacientesCrudList.vue'
+import PacienteCrudSave from '../components/pacientes_crud/PacienteCrudSave.vue'
 const mostrarDialog = ref<boolean>(false)
-const ClienteCrudListRef = ref<typeof ClienteCrudList | null>(null)
-const clienteEdit = ref<any>(null)
+const PacienteCrudListRef = ref<typeof PacienteCrudList | null>(null)
+const pacienteEdit = ref<any>(null)
 
 function handleCreate() {
-  clienteEdit.value = null
+  pacienteEdit.value = null
   mostrarDialog.value = true
 }
 
-function handleEdit(cliente: any) {
-  clienteEdit.value = cliente
+function handleEdit(paciente: any) {
+  pacienteEdit.value = paciente
   mostrarDialog.value = true
 }
 
@@ -22,7 +22,7 @@ function handleCloseDialog() {
 }
 
 function handleGuardar() {
-  ClienteCrudListRef.value?.obtenerLista()
+  PacienteCrudListRef.value?.obtenerLista()
 }
 </script>
 
@@ -33,18 +33,18 @@ function handleGuardar() {
         <div class="header-content">
           <h1 class="page-title">
             <i class="pi pi-users" style="margin-right: 0.5rem;"></i>
-            Gestión de Clientes
+            Gestión de Pacientes
           </h1>
-          <Button label="Agregar Cliente" icon="pi pi-plus" @click="handleCreate" class="create-button"
+          <Button label="Agregar Paciente" icon="pi pi-plus" @click="handleCreate" class="create-button"
             severity="success" />
         </div>
       </div>
 
       <div class="list-section">
-        <ClienteCrudList ref="ClienteCrudListRef" @edit="handleEdit" />
+        <PacienteCrudList ref="PacienteCrudListRef" @edit="handleEdit" />
       </div>
 
-      <ClienteCrudSave :mostrar="mostrarDialog" :cliente="clienteEdit" :modoEdicion="!!clienteEdit"
+      <PacienteCrudSave :mostrar="mostrarDialog" :paciente="pacienteEdit" :modoEdicion="!!pacienteEdit"
         @guardar="handleGuardar" @close="handleCloseDialog" />
     </div>
   </div>

@@ -23,7 +23,7 @@ function handleCloseDialog() {
 }
 
 function handleGuardar() {
-  ServicioListRef.value?.obtenerLista()
+  TratamientoListRef.value?.obtenerLista()
 }
 </script>
 
@@ -34,10 +34,10 @@ function handleGuardar() {
         <div class="header-content">
           <h1 class="page-title">
             <i class="pi pi-users" style="margin-right: 0.5rem"></i>
-            Gestión de Servicios
+            Gestión de tratamientos
           </h1>
           <Button
-            label="Agregar Servicio"
+            label="Agregar Tratamiento"
             icon="pi pi-plus"
             @click="handleCreate"
             class="create-button"
@@ -47,7 +47,7 @@ function handleGuardar() {
       </div>
 
       <div class="list-section">
-        <ServicioList ref="ServicioListRef" @edit="handleEdit" />
+        <TratamientoList ref="TratamientoListRef" @edit="handleEdit" />
       </div>
 
       <TratamientoSave

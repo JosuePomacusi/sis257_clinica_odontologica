@@ -7,7 +7,7 @@ const authStore = useAuthStore() // Accede al usuario autenticado
 const CitaOdontologoListRef = ref<typeof CitaOdontologoList | null>(null)
 
 // Filtrar citas solo del cliente autenticado
-const clienteId = computed(() => authStore.user?.id || null) // Obtiene el ID del cliente autenticado
+const pacienteId = computed(() => authStore.user?.id || null) // Obtiene el ID del cliente autenticado
 
 </script>
 

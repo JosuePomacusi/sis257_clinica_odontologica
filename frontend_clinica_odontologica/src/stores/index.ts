@@ -21,7 +21,7 @@ const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user') || 'null') as User | null,
     token: getTokenFromLocalStorage(),
-    role: localStorage.getItem('role') || '',
+    rol: localStorage.getItem('rol') || '',
     returnUrl: '',
   }),
   getters: {
@@ -35,7 +35,7 @@ const useAuthStore = defineStore('auth', {
 
         console.log('Respuesta completa del backend:', response.data);
 
-        const userData = response.data.data;
+        const userData = response.data;
 
         if (!userData.rol) {
           console.error('El rol no está presente en la respuesta del backend.');
@@ -48,11 +48,11 @@ const useAuthStore = defineStore('auth', {
           email: userData.email,
         };
         this.token = userData.access_token || '';
-        this.role = userData.rol || '';
+        this.rol = userData.rol || '';
 
         localStorage.setItem('user', JSON.stringify(this.user));
         localStorage.setItem('token', this.token || '');
-        localStorage.setItem('role', this.role || '');
+        localStorage.setItem('rol', this.rol || '');
 
         router.push(this.returnUrl || '/');
       } catch (error) {

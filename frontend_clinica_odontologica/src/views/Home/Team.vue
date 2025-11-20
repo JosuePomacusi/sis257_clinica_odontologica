@@ -56,7 +56,7 @@
                                                 <i class="ri-mail-unread-fill"></i>
                                                 <span>andrea.lopez@diwadental.com</span>
                                             </li>
-                                            <li><i class="ri-phone-fill"></i> +591 76412345</li>
+                                            <li><i class="ri-phone-fill"></i> +591 77777377</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -99,9 +99,9 @@
                                         <ul>
                                             <li>
                                                 <i class="ri-mail-unread-fill"></i>
-                                                <span>marco.gutierrez@diwadental.com</span>
+                                                <span>marco.arenas@diwadental.com</span>
                                             </li>
-                                            <li><i class="ri-phone-fill"></i> +591 72178945</li>
+                                            <li><i class="ri-phone-fill"></i> +591 72171594</li>
                                         </ul>
                                     </div>
                                 </div>

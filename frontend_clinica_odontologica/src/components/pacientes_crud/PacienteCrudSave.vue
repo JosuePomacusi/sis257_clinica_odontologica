@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Password from 'primevue/password'
-import type { Cliente } from '../../models/Cliente'
+
 import http from '../../plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -8,14 +8,15 @@ import InputText from 'primevue/inputtext'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
+import type { Paciente } from '@/models/Paciente'
 
 const toast = useToast()
-const ENDPOINT = 'clientes'
+const ENDPOINT = 'pacientes'
 const props = defineProps({
   mostrar: Boolean,
-  cliente: {
-    type: Object as () => Cliente,
-    default: () => ({}) as Cliente,
+  paciente: {
+    type: Object as () => Paciente,
+    default: () => ({}) as Paciente,
   },
   modoEdicion: Boolean,
 })
@@ -28,44 +29,44 @@ const dialogVisible = computed({
   },
 })
 
-const cliente = ref<Cliente>({ ...props.cliente })
+const paciente = ref<Paciente>({ ...props.paciente })
 watch(
-  () => props.cliente,
+  () => props.paciente,
   newVal => {
-    cliente.value = { ...newVal }
+    paciente.value = { ...newVal }
   },
 )
 
 async function handleSave() {
   try {
     const body = {
-      nombre: cliente.value.nombre,
-      primerApellido: cliente.value.primerApellido,
-      segundoApellido: cliente.value.segundoApellido,
-      email: cliente.value.email,
-      password: cliente.value.password,
-      telefono: cliente.value.telefono,
-      direccion: cliente.value.direccion,
+      nombre: paciente.value.nombre,
+      primerApellido: paciente.value.primerApellido,
+      segundoApellido: paciente.value.segundoApellido,
+      email: paciente.value.email,
+      password: paciente.value.password,
+      telefono: paciente.value.telefono,
+      direccion: paciente.value.direccion,
     }
     if (props.modoEdicion) {
-      await http.patch(`${ENDPOINT}/${cliente.value.id}`, body)
+      await http.patch(`${ENDPOINT}/${paciente.value.id}`, body)
       toast.add({
         severity: 'success',
-        summary: 'Cliente actualizado',
-        detail: 'Los datos del cliente se han actualizado correctamente',
+        summary: 'Paciente actualizado',
+        detail: 'Los datos del paciente se han actualizado correctamente',
         life: 3000
       })
     } else {
       await http.post(ENDPOINT, body)
       toast.add({
         severity: 'success',
-        summary: 'Cliente creado',
-        detail: 'El cliente se ha creado correctamente',
+        summary: 'Paciente creado',
+        detail: 'El paciente se ha creado correctamente',
         life: 3000
       })
     }
     emit('guardar')
-    cliente.value = {} as Cliente
+    paciente.value = {} as Paciente
     dialogVisible.value = false
   } catch (error: any) {
     toast.add({
@@ -92,7 +93,7 @@ async function handleSave() {
           <label for="nombre" class="font-semibold">Nombre</label>
           <InputText
             id="nombre"
-            v-model="cliente.nombre"
+            v-model="paciente.nombre"
             autocomplete="off"
             autofocus
           />
@@ -103,7 +104,7 @@ async function handleSave() {
           <label for="primer_apellido" class="font-semibold">Primer Apellido</label>
           <InputText
             id="primer_apellido"
-            v-model="cliente.primerApellido"
+            v-model="paciente.primerApellido"
             autocomplete="off"
           />
         </div>
@@ -113,7 +114,7 @@ async function handleSave() {
           <label for="segundo_apellido" class="font-semibold">Segundo Apellido</label>
           <InputText
             id="segundo_apellido"
-            v-model="cliente.segundoApellido"
+            v-model="paciente.segundoApellido"
             autocomplete="off"
           />
         </div>
@@ -123,7 +124,7 @@ async function handleSave() {
           <label for="email" class="font-semibold">Correo</label>
           <InputText
             id="email"
-            v-model="cliente.email"
+            v-model="paciente.email"
             autocomplete="off"
           />
         </div>
@@ -133,7 +134,7 @@ async function handleSave() {
           <label for="password" class="font-semibold">Contraseña</label>
           <Password
             id="password"
-            v-model="cliente.password"
+            v-model="paciente.password"
             :disabled="props.modoEdicion"
             :toggleMask="!props.modoEdicion"
             :feedback="!props.modoEdicion"
@@ -149,7 +150,7 @@ async function handleSave() {
           <label for="telefono" class="font-semibold">Teléfono</label>
           <InputText
             id="telefono"
-            v-model="cliente.telefono"
+            v-model="paciente.telefono"
             autocomplete="off"
           />
         </div>
@@ -159,7 +160,7 @@ async function handleSave() {
           <label for="direccion" class="font-semibold">Dirección</label>
           <InputText
             id="direccion"
-            v-model="cliente.direccion"
+            v-model="paciente.direccion"
             autocomplete="off"
           />
         </div>

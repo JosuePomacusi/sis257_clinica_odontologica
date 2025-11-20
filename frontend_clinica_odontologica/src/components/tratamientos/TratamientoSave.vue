@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Servicios } from '../../models/Servicios'
+
 import http from '../../plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -9,14 +9,15 @@ import { computed, ref, watch } from 'vue'
 import { Textarea } from 'primevue'
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast'
+import type { Tratamiento } from '@/models/Tratamientos'
 
 const toast = useToast()
-const ENDPOINT = 'servicios'
+const ENDPOINT = 'tratamientos'
 const props = defineProps({
   mostrar: Boolean,
-  servicio: {
-    type: Object as () => Servicios,
-    default: () => ({}) as Servicios,
+  tratamiento: {
+    type: Object as () => Tratamiento,
+    default: () => ({}) as Tratamiento,
   },
   modoEdicion: Boolean,
 })
@@ -29,22 +30,22 @@ const dialogVisible = computed({
   },
 })
 
-const servicio = ref<Servicios>({ ...props.servicio })
+const tratamiento = ref<Tratamiento>({ ...props.tratamiento })
 watch(
   () => props.mostrar,
   newVal => {
     if (newVal) {
-      servicio.value = props.modoEdicion
+      tratamiento.value = props.modoEdicion
         ? {
-          ...props.servicio,
-          precio: Math.round(props.servicio.precio * 100) / 100,
+          ...props.tratamiento,
+          precio: Math.round(props.tratamiento.precio * 100) / 100,
         }
         : ({
           nombre: '',
           descripcion: '',
           precio: 0,
           duracion: 0,
-        } as Servicios)
+        } as Tratamiento)
     }
   },
 )
@@ -52,25 +53,25 @@ watch(
 async function handleSave() {
   try {
     const body = {
-      nombre: servicio.value.nombre,
-      descripcion: servicio.value.descripcion,
-      precio: servicio.value.precio,
-      duracion: servicio.value.duracion,
+      nombre: tratamiento.value.nombre,
+      descripcion: tratamiento.value.descripcion,
+      precio: tratamiento.value.precio,
+      duracion: tratamiento.value.duracion,
     }
     if (props.modoEdicion) {
-      await http.patch(`${ENDPOINT}/${servicio.value.id}`, body)
-      toast.add({ severity: 'success', summary: 'Éxito', detail: 'Servicio actualizado correctamente.', life: 3000 });
+      await http.patch(`${ENDPOINT}/${tratamiento.value.id}`, body)
+      toast.add({ severity: 'success', summary: 'Éxito', detail: 'Tratamiento actualizado correctamente.', life: 3000 });
     } else {
       await http.post(ENDPOINT, body)
-      toast.add({ severity: 'success', summary: 'Éxito', detail: 'Servicio creado correctamente.', life: 3000 });
+      toast.add({ severity: 'success', summary: 'Éxito', detail: 'Tratamiento creado correctamente.', life: 3000 });
     }
     // Emitir evento global de servicio creado 
-    const event = new CustomEvent('servicioCreado')
+    const event = new CustomEvent('tratamientoCreado')
     window.dispatchEvent(event)
 
 
     emit('guardar')
-    servicio.value = {} as Servicios
+    tratamiento.value = {} as Tratamiento
     dialogVisible.value = false
   } catch (error: any) {
     console.error('Error al guardar el servicio:', error)
@@ -88,7 +89,7 @@ async function handleSave() {
         <div class="p-field p-grid">
           <label for="nombre" class="p-col-12 p-md-4 font-semibold">Nombre del Servicio</label>
           <div class="p-col-12 p-md-8">
-            <InputText id="nombre" v-model="servicio.nombre" class="p-inputtext-sm w-full" autocomplete="off"
+            <InputText id="nombre" v-model="tratamiento.nombre" class="p-inputtext-sm w-full" autocomplete="off"
               autofocus />
           </div>
         </div>
@@ -97,7 +98,7 @@ async function handleSave() {
         <div class="p-field p-grid">
           <label for="descripcion" class="p-col-12 p-md-4 font-semibold">Descripción</label>
           <div class="p-col-12 p-md-8">
-            <Textarea id="descripcion" v-model="servicio.descripcion" autoResize rows="5" cols="30" class="w-full"
+            <Textarea id="descripcion" v-model="tratamiento.descripcion" autoResize rows="5" cols="30" class="w-full"
               autocomplete="off" />
           </div>
         </div>
@@ -106,7 +107,7 @@ async function handleSave() {
         <div class="p-field p-grid">
           <label for="precio" class="p-col-12 p-md-4 font-semibold">Precio (Bs)</label>
           <div class="p-col-12 p-md-8">
-            <InputNumber id="precio" v-model="servicio.precio" class="p-inputtext-sm w-full" autocomplete="off"
+            <InputNumber id="precio" v-model="tratamiento.precio" class="p-inputtext-sm w-full" autocomplete="off"
               :step="0.01" :min="0" :mode="'decimal'" :locale="'es-BO'" :decimalSeparator="'.'" :useGrouping="false" />
           </div>
         </div>
@@ -115,7 +116,7 @@ async function handleSave() {
         <div class="p-field p-grid">
           <label for="duracion" class="p-col-12 p-md-4 font-semibold">Duración (Min)</label>
           <div class="p-col-12 p-md-8">
-            <InputNumber id="duracion" v-model="servicio.duracion" class="p-inputtext-sm w-full" autocomplete="off"
+            <InputNumber id="duracion" v-model="tratamiento.duracion" class="p-inputtext-sm w-full" autocomplete="off"
               :step="1" :min="0" />
           </div>
         </div>

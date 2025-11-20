@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { Odontologo } from '../../models/Odontologo';
 import { ref, watch } from 'vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import type { Paciente } from '@/models/Paciente';
 
-// Props: Odontologo a editar y modo edición
+// Props: Cliente a editar y modo edición
 const props = defineProps({
-  odontologo: {
-    type: Object as () => Odontologo,
-    default: () => ({} as Odontologo),
+  paciente: {
+    type: Object as () => Paciente,
+    default: () => ({} as Paciente),
   },
   modoEdicion: {
     type: Boolean,
@@ -19,26 +19,26 @@ const props = defineProps({
 // Evento para emitir al guardar
 const emit = defineEmits(['guardar', 'cancelar']);
 
-// Estado local del odontologo (clonado desde las props)
-const odontologo = ref<Odontologo>({ ...props.odontologo });
+// Estado local del cliente (clonado desde las props)
+const paciente = ref<Paciente>({ ...props.paciente });
 
 // Sincronizar cambios si las props cambian
 watch(
-  () => props.odontologo,
+  () => props.paciente,
   (newVal) => {
-    odontologo.value = { ...newVal };
+    paciente.value = { ...newVal };
   },
 );
 
 // Función para reiniciar los valores originales
 function cancelarEdicion() {
   emit('cancelar'); // Emitir evento de cancelación al padre
-  odontologo.value = { ...props.odontologo }; // Reiniciar los valores
+  paciente.value = { ...props.paciente }; // Reiniciar los valores
 }
 
 // Función para guardar los cambios
 function guardar() {
-  emit('guardar', odontologo.value); // Emitir el odontologo actualizado al padre
+  emit('guardar', paciente.value); // Emitir el cliente actualizado al padre
 }
 </script>
 
@@ -50,7 +50,7 @@ function guardar() {
       <label for="nombre" class="font-semibold w-24">Nombre</label>
       <InputText
         id="nombre"
-        v-model="odontologo.nombre"
+        v-model="paciente.nombre"
         class="flex-auto"
         autocomplete="off"
       />
@@ -61,7 +61,7 @@ function guardar() {
       <label for="primer_apellido" class="font-semibold w-24">Primer Apellido</label>
       <InputText
         id="primer_apellido"
-        v-model="odontologo.primerApellido"
+        v-model="paciente.primerApellido"
         class="flex-auto"
         autocomplete="off"
       />
@@ -72,7 +72,7 @@ function guardar() {
       <label for="segundo_apellido" class="font-semibold w-24">Segundo Apellido</label>
       <InputText
         id="segundo_apellido"
-        v-model="odontologo.segundoApellido"
+        v-model="paciente.segundoApellido"
         class="flex-auto"
         autocomplete="off"
       />
@@ -83,18 +83,7 @@ function guardar() {
       <label for="email" class="font-semibold w-24">Correo</label>
       <InputText
         id="email"
-        v-model="odontologo.email"
-        class="flex-auto"
-        autocomplete="off"
-      />
-    </div>
-
-    <!-- Especialidad -->
-    <div class="form-group">
-      <label for="especialidad" class="font-semibold w-24">Especialidad</label>
-      <InputText
-        id="especialidad"
-        v-model="odontologo.especialidad"
+        v-model="paciente.email"
         class="flex-auto"
         autocomplete="off"
       />
@@ -105,7 +94,7 @@ function guardar() {
       <label for="telefono" class="font-semibold w-24">Teléfono</label>
       <InputText
         id="telefono"
-        v-model="odontologo.telefono"
+        v-model="paciente.telefono"
         class="flex-auto"
         autocomplete="off"
       />
@@ -116,7 +105,7 @@ function guardar() {
       <label for="direccion" class="font-semibold w-24">Dirección</label>
       <InputText
         id="direccion"
-        v-model="odontologo.direccion"
+        v-model="paciente.direccion"
         class="flex-auto"
         autocomplete="off"
       />
@@ -147,9 +136,9 @@ function guardar() {
   max-width: 600px; /* Ancho máximo */
   margin: 0 auto; /* Centrar */
   padding: 20px; /* Espaciado interno */
-  border: 1px solid #ddd; /* Borde */
+  border: 1px solid #000000; /* Borde */
   border-radius: 8px; /* Bordes redondeados */
-  background-color: #f9f9f9; /* Fondo claro */
+  background-color: #e2e2ec; /* Fondo claro */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
 }
 
@@ -164,20 +153,20 @@ function guardar() {
 label {
   font-size: 1rem; /* Tamaño de texto */
   font-weight: bold; /* Texto en negrita */
-  color: #333; /* Color del texto */
+  color: #000000; /* Color del texto */
   width: 150px; /* Ancho de la etiqueta */
 }
 
 input {
   padding: 10px; /* Espaciado interno */
-  border: 1px solid #ccc; /* Borde */
+  border: 1px solid #000000; /* Borde */
   border-radius: 4px; /* Bordes redondeados */
   font-size: 1rem; /* Tamaño de texto */
   flex: 1; /* Expande para ocupar el espacio disponible */
 }
 
 input:focus {
-  border-color: #4caf50; /* Borde verde al enfocar */
+  border-color: #000000; /* Borde verde al enfocar */
   outline: none; /* Quitar contorno por defecto */
 }
 

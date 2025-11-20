@@ -11,7 +11,7 @@ const CitaListRef = ref<typeof CitaList | null>(null)
 const citaEdit = ref<any>(null)
 
 // Filtrar citas solo del cliente autenticado
-const clienteId = computed(() => authStore.user?.id || null) // Obtiene el ID del cliente autenticado
+const pacienteId = computed(() => authStore.user?.id || null) // Obtiene el ID del cliente autenticado
 
 function handleCreate() {
   citaEdit.value = null // Resetea el formulario para crear una nueva cita
@@ -41,7 +41,7 @@ function handleGuardar() {
     <div class="content-container">
       <h1 class="title">Citas Programadas</h1>
       <Button label="Crear Nueva Cita" icon="pi pi-plus" @click="handleCreate" />
-      <CitaList ref="CitaListRef" :cliente-id="clienteId" @edit="handleEdit" />
+      <CitaList ref="CitaListRef" :paciente-id="pacienteId" @edit="handleEdit" />
       <CitaSave
         :mostrar="mostrarDialog"
         :cita="citaEdit"

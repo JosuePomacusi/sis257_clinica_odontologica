@@ -97,7 +97,7 @@ router.beforeEach(async (to, from, next) => {
   const publicPages = ['/', '/login','/paciente-crear-cuenta', '/odontologo-cards'] // Páginas públicas
   const authRequired = !publicPages.includes(to.path)
   const authStore = useAuthStore()
-  const userRole = authStore.role // Obtener el rol del usuario autenticado
+  const userRol = authStore.rol // Obtener el rol del usuario autenticado
 
   // Verificar si el usuario tiene un token válido
   if (authRequired && !getTokenFromLocalStorage()) {
@@ -108,9 +108,9 @@ router.beforeEach(async (to, from, next) => {
 
   // Lógica para manejar la redirección según el rol en la ruta '/citas'
   if (to.name === 'citas') {
-    if (userRole === 'paciente') {
+    if (userRol === 'paciente') {
       next({ name: 'citas-paciente' }) // Redirige a la vista de citas para pacientes
-    } else if (userRole === 'odontologo') {
+    } else if (userRol === 'odontologo') {
       next({ name: 'citas-odontologo' }) // Redirige a la vista de citas para odontólogos
     } else {
       next({ name: 'unauthorized' }) // Redirige si no tiene un rol válido

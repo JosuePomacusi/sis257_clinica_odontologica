@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { Cliente } from '@/models/Cliente';
 import http from '../../plugins/axios';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Password from 'primevue/password';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast'; // Importar el hook de Toast
+import type { Paciente } from '@/models/Paciente';
 
 const ENDPOINT = 'clientes';
-const cliente = ref<Cliente>({
+const paciente = ref<Paciente>({
   id: 0,
   nombre: '',
   primerApellido: '',
@@ -26,13 +26,13 @@ const toast = useToast(); // Instancia de Toast
 async function handleSave() {
   try {
     const body = {
-      nombre: cliente.value.nombre,
-      primerApellido: cliente.value.primerApellido,
-      segundoApellido: cliente.value.segundoApellido,
-      password: cliente.value.password,
-      email: cliente.value.email,
-      telefono: cliente.value.telefono,
-      direccion: cliente.value.direccion,
+      nombre: paciente.value.nombre,
+      primerApellido: paciente.value.primerApellido,
+      segundoApellido: paciente.value.segundoApellido,
+      password: paciente.value.password,
+      email: paciente.value.email,
+      telefono: paciente.value.telefono,
+      direccion: paciente.value.direccion,
     };
 
     await http.post(ENDPOINT, body);
@@ -70,19 +70,19 @@ async function handleSave() {
   <div class="create-container">
     <div class="form-group">
       <label for="nombre">Nombre</label>
-      <InputText id="nombre" v-model="cliente.nombre" />
+      <InputText id="nombre" v-model="paciente.nombre" />
     </div>
     <div class="form-group">
       <label for="primer_apellido">Primer Apellido</label>
-      <InputText id="primer_apellido" v-model="cliente.primerApellido" />
+      <InputText id="primer_apellido" v-model="paciente.primerApellido" />
     </div>
     <div class="form-group">
       <label for="segundo_apellido">Segundo Apellido</label>
-      <InputText id="segundo_apellido" v-model="cliente.segundoApellido" />
+      <InputText id="segundo_apellido" v-model="paciente.segundoApellido" />
     </div>
     <div class="form-group">
       <label for="contraseña">Contraseña</label>
-      <Password id="contraseña" v-model="cliente.password" required toggleMask weakLabel="Débil" mediumLabel="Media"
+      <Password id="contraseña" v-model="paciente.password" required toggleMask weakLabel="Débil" mediumLabel="Media"
         strongLabel="Fuerte" maxlength="50">
         <template #footer>
           <Divider />
@@ -99,15 +99,15 @@ async function handleSave() {
 
     <div class="form-group">
       <label for="email">Correo</label>
-      <InputText id="email" v-model="cliente.email" />
+      <InputText id="email" v-model="paciente.email" />
     </div>
     <div class="form-group">
       <label for="telefono">Teléfono</label>
-      <InputText id="telefono" v-model="cliente.telefono" />
+      <InputText id="telefono" v-model="paciente.telefono" />
     </div>
     <div class="form-group">
       <label for="direccion">Dirección</label>
-      <InputText id="direccion" v-model="cliente.direccion" />
+      <InputText id="direccion" v-model="paciente.direccion" />
     </div>
     <div class="form-actions">
       <Button label="Guardar" icon="pi pi-save" @click="handleSave" />

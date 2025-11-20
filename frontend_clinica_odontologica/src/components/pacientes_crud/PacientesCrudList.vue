@@ -1,39 +1,40 @@
 <script setup lang="ts">
-import type { Cliente } from '../../models/Cliente'
+
 import http from '../../plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import { onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import type { Paciente } from '@/models/Paciente'
 
 const toast = useToast()
 
-const ENDPOINT = 'clientes'
-let clientes = ref<Cliente[]>([])
+const ENDPOINT = 'pacientes'
+let pacientes = ref<Paciente[]>([])
 
 const emit = defineEmits(['edit'])
-const clienteDelete = ref<Cliente | null>(null)
+const pacienteDelete = ref<Paciente | null>(null)
 const mostrarConfirmDialog = ref<boolean>(false)
 
 async function obtenerLista() {
-  clientes.value = await http.get(ENDPOINT).then(response => response.data)
+  pacientes.value = await http.get(ENDPOINT).then(response => response.data)
 }
 
-function emitirEdicion(cliente: Cliente) {
-  emit('edit', cliente)
+function emitirEdicion(paciente: Paciente) {
+  emit('edit', paciente)
 }
 
-function mostrarEliminarConfirm(cliente: Cliente) {
-  clienteDelete.value = cliente
+function mostrarEliminarConfirm(paciente: Paciente) {
+  pacienteDelete.value = paciente
   mostrarConfirmDialog.value = true
 }
 
 async function eliminar() {
-  await http.delete(`${ENDPOINT}/${clienteDelete.value?.id}`)
+  await http.delete(`${ENDPOINT}/${pacienteDelete.value?.id}`)
   toast.add({
         severity: 'success',
-        summary: 'Cliente Eliminado',
-        detail: 'Los datos del cliente se han eliminado correctamente',
+        summary: 'Paciente Eliminado',
+        detail: 'Los datos del paciente se han eliminado correctamente',
         life: 3000
       })
   obtenerLista()
@@ -64,22 +65,22 @@ defineExpose({ obtenerLista })
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(cliente, index) in clientes" :key="cliente.id">
+          <tr v-for="(paciente, index) in pacientes" :key="paciente.id">
             <td class="td-number">{{ index + 1 }}</td>
-            <td>{{ cliente.nombre }}</td>
-            <td>{{ cliente.primerApellido }}</td>
-            <td>{{ cliente.segundoApellido }}</td>
-            <td>{{ cliente.email }}</td>
+            <td>{{ paciente.nombre }}</td>
+            <td>{{ paciente.primerApellido }}</td>
+            <td>{{ paciente.segundoApellido }}</td>
+            <td>{{ paciente.email }}</td>
             <td>
-              <span class="specialty-tag">{{ cliente.telefono }}</span>
+              <span class="specialty-tag">{{ paciente.telefono }}</span>
             </td>
-            <td>{{ cliente.direccion }}</td>
+            <td>{{ paciente.direccion }}</td>
             <td class="actions-column">
               <div class="actions-wrapper">
                 <Button icon="pi pi-pencil" aria-label="Editar" text class="edit-button"
-                  @click="emitirEdicion(cliente)" />
+                  @click="emitirEdicion(paciente)" />
                 <Button icon="pi pi-trash" aria-label="Eliminar" text class="delete-button"
-                  @click="mostrarEliminarConfirm(cliente)" />
+                  @click="mostrarEliminarConfirm(paciente)" />
               </div>
             </td>
           </tr>

@@ -3,9 +3,9 @@ import { ref, onMounted, computed, watch } from 'vue'
 import http from '../../plugins/axios'
 import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
-import type { Odontologo_servicio } from '../../models/Odontologo_servicio'
+import type { Odontologo_tratamiento as Odontologo_tratamiento } from '../../models/Odontologo_tratamiento'
 import type { Odontologo } from '../../models/Odontologo'
-import type { Servicios } from '../../models/Servicios'
+import type { Tratamiento } from '../../models/Tratamientos'
 import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
 
@@ -14,8 +14,8 @@ const toast = useToast()
 const props = defineProps({
   mostrar: Boolean,
   relacion: {
-    type: Object as () => Odontologo_servicio,
-    default: () => ({ id: 0, odontologo_id: 0, servicio_id: 0 }),
+    type: Object as () => Odontologo_tratamiento,
+    default: () => ({ id: 0, odontologo_id: 0, tratamiento_id: 0 }),
   },
   modoEdicion: Boolean,
 })
@@ -32,13 +32,13 @@ const dialogVisible = computed({
 
 // Datos de odontólogos y servicios
 const odontologos = ref<Odontologo[]>([])
-const servicios = ref<Servicios[]>([])
+const tratamientos = ref<Tratamiento[]>([])
 
 // Relación editable
 const relacion = ref({
   id: props.relacion.id,
   odontologo_id: props.relacion.odontologo_id,
-  servicio_id: props.relacion.servicio_id,
+  tratamiento_id: props.relacion.tratamiento_id,
 })
 
 // Actualizar `relacion` cuando cambie `props.relacion`
@@ -52,30 +52,30 @@ watch(
 
 // Cargar odontólogos y servicios
 async function cargarDatos() {
-  const [odontologoResponse, servicioResponse] = await Promise.all([
+  const [odontologoResponse, tratamientoResponse] = await Promise.all([
     http.get('odontologos'),
-    http.get('servicios'),
+    http.get('tratamientos'),
   ])
   odontologos.value = odontologoResponse.data
-  servicios.value = servicioResponse.data
+  tratamientos.value = tratamientoResponse.data
 }
 
 // Guardar cambios
 async function handleEditSave() {
   try {
-    if (!relacion.value.odontologo_id || !relacion.value.servicio_id) {
-      toast.add({ severity: 'warn', summary: 'Error', detail: 'Debe seleccionar un odontólogo y un servicio', life: 3000 });
+    if (!relacion.value.odontologo_id || !relacion.value.tratamiento_id) {
+      toast.add({ severity: 'warn', summary: 'Error', detail: 'Debe seleccionar un odontólogo y un tratamiento', life: 3000 });
       return
     }
 
     // Crear el cuerpo con el id de la relación y el nuevo servicio
     const body = {
       odontologoId: relacion.value.odontologo_id, // Este no cambia
-      servicioId: relacion.value.servicio_id, // Este sí cambia
+      tratamientoId: relacion.value.tratamiento_id, // Este sí cambia
     }
 
     // Enviar el PATCH con el ID de la relación
-    await http.patch(`odontologos_servicios/${relacion.value.id}`, body)
+    await http.patch(`odontologos_tratamientos/${relacion.value.id}`, body)
 
     // Emitir evento para recargar la lista
     emit('guardar')
@@ -110,10 +110,10 @@ onMounted(() => {
       />
     </div>
     <div class="mb-4">
-      <label class="font-semibold mb-2">Servicio</label>
+      <label class="font-semibold mb-2">tratamiento</label>
       <Dropdown
-        v-model="relacion.servicio_id"
-        :options="servicios"
+        v-model="relacion.tratamiento_id"
+        :options="tratamientos"
         option-label="nombre"
         option-value="id"
         class="w-full"

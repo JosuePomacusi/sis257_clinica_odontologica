@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import ClienteSave from '@/components/clientes/ClienteSaveFormulario.vue';
+import PacienteSave from '@/components/pacientes/PacienteSaveFormulario.vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast'; // Importar el hook de Toast
 
-const clienteNuevo = ref({}); // Datos iniciales para un nuevo cliente
+const pacienteNuevo = ref({}); // Datos iniciales para un nuevo cliente
 const router = useRouter();
 const toast = useToast(); // Instancia de Toast
 
@@ -38,8 +38,8 @@ function handleCloseDialog() {
     <div class="create-view">
       <div class="form-container">
         <h1 class="form-title">Registro</h1>
-        <ClienteSave
-          :cliente="clienteNuevo"
+        <PacienteSave
+          :paciente="pacienteNuevo"
           :modoEdicion="false"
           @guardar="handleGuardar"
           @close="handleCloseDialog"
