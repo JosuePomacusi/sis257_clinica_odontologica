@@ -15,6 +15,7 @@ import { CreateOdontologoDto } from './dto/create-odontologo.dto';
 import { UpdateOdontologoDto } from './dto/update-odontologo.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+//@ApiBearerAuth()
 @ApiTags('Odontologos')
 @Controller('odontologos')
 export class OdontologosController {

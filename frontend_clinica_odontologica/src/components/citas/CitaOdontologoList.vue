@@ -112,7 +112,7 @@ defineExpose({ obtenerLista })
         <tr>
           <th>Nro.</th>
           <th>Paciente</th>
-          <th>Servicio</th>
+          <th>Tratamiento</th>
           <th>Precio</th>
           <th>Estado</th>
           <th>Fecha y Hora</th>
@@ -122,9 +122,9 @@ defineExpose({ obtenerLista })
       <tbody>
         <tr v-for="(cita, index) in citasFiltradas" :key="cita.id">
           <td>{{ index + 1 }}</td>
-          <td>{{ cita.cliente.nombre + ' ' + cita.cliente.primerApellido }}</td>
-          <td>{{ cita.servicio?.nombre }}</td>
-          <td>{{ cita.servicio?.precio }} Bs.</td>
+          <td>{{ cita.paciente.nombre + ' ' + cita.paciente.primerApellido }}</td>
+          <td>{{ cita.tratamiento?.nombre }}</td>
+          <td>{{ cita.tratamiento?.precio }} Bs.</td>
           <td>{{ cita.estado }}</td>
           <td>
             {{ new Date(cita.fechaHoraInicio).toLocaleString() }} -

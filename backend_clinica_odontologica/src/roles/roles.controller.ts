@@ -4,6 +4,7 @@ import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+//@ApiBearerAuth()
 @ApiTags('Roles')
 @Controller('roles')
 export class RolesController {

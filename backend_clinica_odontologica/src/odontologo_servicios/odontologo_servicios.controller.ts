@@ -16,6 +16,7 @@ import { UpdateOdontologoServicioDto } from './dto/update-odontologo_servicio.dt
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { OdontologoServicio } from './entities/odontologo_servicio.entity';
 
+@ApiBearerAuth()
 @ApiTags('Odontologos_Servicios')
 @Controller('odontologos_servicios')
 export class OdontologosServiciosController {

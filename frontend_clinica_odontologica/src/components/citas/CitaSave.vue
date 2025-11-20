@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Cita } from '../../models/Cita'
 import type { Odontologo } from '../../models/Odontologo'
-import type { Servicios } from '../../models/Servicios'
+import type { Tratamiento } from '../../models/Tratamientos'
 import http from '../../plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -16,7 +16,7 @@ const toast = useToast()
 
 const ENDPOINT = 'citas'
 const ODONTOLOGOS_ENDPOINT = 'odontologos'
-const SERVICIOS_ENDPOINT = 'servicios/odontologo'
+const TRATAMIENTOS_ENDPOINT = 'tratamientos/odontologo'
 
 const authStore = useAuthStore()
 
@@ -32,7 +32,7 @@ const emit = defineEmits(['guardar', 'close'])
 
 const cita = ref<Cita>({ ...props.cita })
 const odontologos = ref<Odontologo[]>([])
-const servicios = ref<Servicios[]>([])
+const tratamientos = ref<Tratamiento[]>([])
 
 const dialogVisible = computed({
   get: () => props.mostrar,
@@ -53,16 +53,16 @@ watch(
   () => cita.value.odontologoId,
   async odontologoId => {
     if (odontologoId) {
-      servicios.value = await http
-        .get(`${SERVICIOS_ENDPOINT}/${odontologoId}`)
+      tratamientos.value = await http
+        .get(`${TRATAMIENTOS_ENDPOINT}/${odontologoId}`)
         .then(response => response.data)
 
       // Si hay un servicio preseleccionado, asegúrate de que esté reflejado en los servicios cargados
-      if (!servicios.value.some(s => s.id === cita.value.servicioId)) {
-        cita.value.servicioId = 0 // Restablecer si el servicio no pertenece al odontólogo actual
+      if (!tratamientos.value.some(s => s.id === cita.value.tratamientoId)) {
+        cita.value.tratamientoId = 0 // Restablecer si el servicio no pertenece al odontólogo actual
       }
     } else {
-      servicios.value = []
+      tratamientos.value = []
     }
   },
 )
@@ -77,13 +77,13 @@ watch(
 )
 
 watch(
-  () => cita.value.servicioId,
-  async servicioId => {
-    if (servicioId && cita.value.fechaHoraInicio) {
+  () => cita.value.tratamientoId,
+  async tratamientoId => {
+    if (tratamientoId && cita.value.fechaHoraInicio) {
       // Solo calcular si hay servicio y fecha de inicio definidos
-      const servicio = servicios.value.find(s => s.id === servicioId)
-      if (servicio) {
-        calcularFechaHoraFin(Number(servicio.duracion))
+      const tratamiento = tratamientos.value.find(s => s.id === tratamientoId)
+      if (tratamiento) {
+        calcularFechaHoraFin(Number(tratamiento.duracion))
       }
     }
   },
@@ -94,15 +94,15 @@ watch(
   fechaHoraInicio => {
     if (
       fechaHoraInicio &&
-      cita.value.servicioId &&
+      cita.value.tratamientoId &&
       (!cita.value.fechaHoraFin ||
         new Date(cita.value.fechaHoraFin).getTime() !==
         new Date(fechaHoraInicio).getTime())
     ) {
       // Evita recalcular si la fechaHoraFin ya es correcta
-      const servicio = servicios.value.find(s => s.id === cita.value.servicioId)
-      if (servicio) {
-        calcularFechaHoraFin(Number(servicio.duracion))
+      const tratamiento = tratamientos.value.find(s => s.id === cita.value.tratamientoId)
+      if (tratamiento) {
+        calcularFechaHoraFin(Number(tratamiento.duracion))
       }
     }
   },
@@ -130,18 +130,18 @@ function getOdontologoLabel(odontologo: Odontologo) {
 }
 
 // Función para cargar servicios
-async function cargarServicios(odontologoId: number) {
-  servicios.value = await http
-    .get(`${SERVICIOS_ENDPOINT}/${odontologoId}`)
+async function cargarTratamientos(odontologoId: number) {
+  tratamientos.value = await http
+    .get(`${TRATAMIENTOS_ENDPOINT}/${odontologoId}`)
     .then(response => response.data)
 
   // Validar si el servicio seleccionado aún está disponible
-  if (cita.value.servicioId) {
-    const servicioSeleccionado = servicios.value.find(
-      s => s.id === cita.value.servicioId,
+  if (cita.value.tratamientoId) {
+    const tratamientoSeleccionado = tratamientos.value.find(
+      s => s.id === cita.value.tratamientoId,
     )
-    if (!servicioSeleccionado) {
-      cita.value.servicioId = 0 // Limpia el servicio si ya no está disponible
+    if (!tratamientoSeleccionado) {
+      cita.value.tratamientoId = 0 // Limpia el servicio si ya no está disponible
     }
   }
 }
@@ -150,9 +150,9 @@ watch(
   () => cita.value.odontologoId,
   async odontologoId => {
     if (odontologoId) {
-      await cargarServicios(odontologoId)
+      await cargarTratamientos(odontologoId)
     } else {
-      servicios.value = []
+      tratamientos.value = []
     }
   },
 )
@@ -165,7 +165,7 @@ watch(
 
     // Si está en modo edición, carga los servicios asociados al odontólogo seleccionado
     if (props.modoEdicion && cita.value.odontologoId) {
-      await cargarServicios(cita.value.odontologoId)
+      await cargarTratamientos(cita.value.odontologoId)
     }
   },
   { immediate: true }, // Asegura la ejecución al iniciar
@@ -177,7 +177,7 @@ async function handleSave() {
       throw new Error('El usuario no está autenticado.')
     }
 
-    const clienteId = authStore.user.id
+    const pacienteId = authStore.user.id
 
     // Verificar que las fechas estén seleccionadas
     if (!cita.value.fechaHoraInicio || !cita.value.fechaHoraFin) {
@@ -185,9 +185,9 @@ async function handleSave() {
     }
 
     const body = {
-      clienteId: clienteId,
+      pacienteId: pacienteId,
       odontologoId: cita.value.odontologoId,
-      servicioId: cita.value.servicioId,
+      tratamientoId: cita.value.tratamientoId,
       estado: cita.value.estado || 'Pendiente', // Valor predeterminado para estado
       fechaHoraInicio: new Date(cita.value.fechaHoraInicio).toISOString(),
       fechaHoraFin: new Date(cita.value.fechaHoraFin).toISOString(),
@@ -235,14 +235,14 @@ async function handleSave() {
 
         <!-- Servicio -->
         <div class="p-field mb-4">
-          <label for="servicio" class="font-semibold">Servicio</label>
+          <label for="tratamiento" class="font-semibold">Tratamiento</label>
           <Select 
-          id="servicio" 
-          v-model="cita.servicioId"
-          :options="servicios" 
+          id="tratamiento" 
+          v-model="cita.tratamientoId"
+          :options="tratamientos" 
           optionLabel="nombre" 
           optionValue="id"
-          placeholder="Seleccione un servicio" 
+          placeholder="Seleccione un tratamiento" 
           />
         </div>
 

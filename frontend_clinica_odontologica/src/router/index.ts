@@ -10,25 +10,25 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: { requireMainJs: true, roles: [] }, // Accesible por cualquier rol
+      meta: { requireMainJs: true, roles: [] }, 
     },
     {
       path: '/citas',
       name: 'citas',
       component: () => import('../views/CitaView.vue'),
-      meta: { roles: ['paciente', 'odontologo'] }, // Accesible por ambos roles
+      meta: { roles: ['paciente', 'odontologo'] },
     },
     {
       path: '/citas-paciente',
       name: 'citas-paciente',
-      component: () => import('../views/CitaView.vue'),  // Componente predeterminado
-      meta: { roles: ['paciente'] }, // Solo accesible por pacientes
+      component: () => import('../views/CitaView.vue'), 
+      meta: { roles: ['paciente'] },
     },
     {
       path: '/citas-odontologo',
       name: 'citas-odontologo',
-      component: () => import('../views/CitaOdontologoView.vue'),  // Componente predeterminado
-      meta: { roles: ['odontologo'] }, // Solo accesible por odontólogos
+      component: () => import('../views/CitaOdontologoView.vue'),  
+      meta: { roles: ['odontologo'] }, 
     },  
     {
       path: '/pacientes',
@@ -58,35 +58,35 @@ const router = createRouter({
       path: '/odontologos',
       name: 'odontologos',
       component: () => import('../views/OdontologoView.vue'),
-      meta: { roles: ['odontologo'] }, // Solo accesible por odontólogos
+      meta: { roles: ['odontologo'] },
     },
     {
       path: '/tratamientos',
       name: 'tratamientos',
       component: () => import('../views/TratamientosView.vue'),
-      meta: { roles: ['odontologo'] }, // Solo accesible por odontólogos
+      meta: { roles: ['odontologo'] },
     },
     {
       path: '/odontologo_tratamientos',
       name: 'odontologo_tratamientos',
       component: () => import('../views/OdontologoTratamientosView.vue'),
-      meta: { roles: ['odontologo'] }, // Solo accesible por odontólogos
+      meta: { roles: ['odontologo'] },
     },
     {
       path: '/odontologo-cards', 
       name: 'odontologo-cards', 
       component: () => import('../views/OdontologoCardView.vue'),
-      meta: { roles: [] }, // Sin restricción de rol
+      meta: { roles: [] },
     },
     {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
-      meta: { roles: [] }, // Sin restricción de rol
+      meta: { roles: [] },
     },
-    // Ruta comodín para manejar rutas desconocidas
+   
     {
-      path: '/:pathMatch(.*)*', // Captura cualquier ruta no definida
+      path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFound.vue'),
     },
@@ -94,29 +94,29 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const publicPages = ['/', '/login','/paciente-crear-cuenta', '/odontologo-cards'] // Páginas públicas
+  const publicPages = ['/', '/login','/paciente-crear-cuenta', '/odontologo-cards'] 
   const authRequired = !publicPages.includes(to.path)
   const authStore = useAuthStore()
-  const userRol = authStore.rol // Obtener el rol del usuario autenticado
+  const userRol = authStore.rol
 
-  // Verificar si el usuario tiene un token válido
+  
   if (authRequired && !getTokenFromLocalStorage()) {
     if (authStore) authStore.logout()
     authStore.returnUrl = to.fullPath
-    return next({ name: 'login' })  // Redirige a la página de login
+    return next({ name: 'login' })  
   }
 
-  // Lógica para manejar la redirección según el rol en la ruta '/citas'
+ 
   if (to.name === 'citas') {
     if (userRol === 'paciente') {
-      next({ name: 'citas-paciente' }) // Redirige a la vista de citas para pacientes
+      next({ name: 'citas-paciente' }) 
     } else if (userRol === 'odontologo') {
-      next({ name: 'citas-odontologo' }) // Redirige a la vista de citas para odontólogos
+      next({ name: 'citas-odontologo' }) 
     } else {
-      next({ name: 'unauthorized' }) // Redirige si no tiene un rol válido
+      next({ name: 'unauthorized' }) 
     }
   } else {
-    next() // Si la ruta no es '/citas', permite la navegación normal
+    next() 
   }
 })
 

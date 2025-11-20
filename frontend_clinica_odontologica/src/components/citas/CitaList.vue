@@ -11,7 +11,7 @@ const ENDPOINT = 'citas'
 
 const citas = ref<Cita[]>([]) // Todas las citas
 let citasFiltradas = computed(() =>
-  citas.value.filter(cita => cita.clienteId === authStore.user?.id),
+  citas.value.filter(cita => cita.pacienteId === authStore.user?.id),
 ) // Filtra las citas del cliente logueado
 
 // Computed para calcular el total de precios
@@ -71,7 +71,7 @@ defineExpose({ obtenerLista })
         <tr>
           <th>Nro.</th>
           <th>Odontólogo</th>
-          <th>Servicio</th>
+          <th>Tratamiento</th>
           <th>Precio</th>
           <th>Estado</th>
           <th>Duracion (MIN)</th>

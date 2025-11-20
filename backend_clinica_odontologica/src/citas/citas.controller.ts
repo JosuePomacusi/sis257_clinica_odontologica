@@ -12,7 +12,10 @@ import {
 import { CitasService } from './citas.service';
 import { CreateCitaDto } from './dto/create-cita.dto';
 import { UpdateCitaDto } from './dto/update-cita.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('citas')
 @Controller('citas')
 export class CitasController {
   constructor(private readonly citasService: CitasService) {}
