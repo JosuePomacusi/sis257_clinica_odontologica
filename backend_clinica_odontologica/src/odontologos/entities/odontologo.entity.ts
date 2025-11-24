@@ -16,6 +16,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { HistorialMedico } from 'src/historial-medico/entities/historial-medico.entity';
 
 @Entity('odontologos')
 export class Odontologo {
@@ -86,4 +87,7 @@ export class Odontologo {
   @ManyToOne(() => Rol, rol => rol.odontologos)
   @JoinColumn({ name: 'rol_id' })
   rol: Rol;
+
+  @OneToMany(() => HistorialMedico, historial => historial.odontologo)
+  registros: HistorialMedico[];
 }

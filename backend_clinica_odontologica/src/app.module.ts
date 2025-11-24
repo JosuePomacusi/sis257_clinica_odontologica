@@ -11,6 +11,9 @@ import { RolesModule } from './roles/roles.module';
 import { OdontologoServiciosModule } from './odontologo_servicios/odontologo_servicios.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { AuthModule } from './auth/auth.module';
+import { FeriadosModule } from './feriados/feriados.module';
+import { HistorialMedicoModule } from './historial-medico/historial-medico.module';
+import { ConfiguracionModule } from './configuracion/configuracion.module';
 
 @Module({
   imports: [
@@ -34,6 +37,9 @@ import { AuthModule } from './auth/auth.module';
     OdontologoServiciosModule,
     HorariosModule,
     AuthModule,
+    FeriadosModule,
+    HistorialMedicoModule,
+    ConfiguracionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
