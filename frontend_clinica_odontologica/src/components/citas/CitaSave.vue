@@ -233,7 +233,7 @@ async function handleSave() {
            />
         </div>
 
-        <!-- Servicio -->
+        <!-- Tratamiento -->
         <div class="p-field mb-4">
           <label for="tratamiento" class="font-semibold">Tratamiento</label>
           <Select 

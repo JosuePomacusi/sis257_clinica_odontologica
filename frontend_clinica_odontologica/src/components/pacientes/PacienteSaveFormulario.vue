@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast'; // Importar el hook de Toast
 import type { Paciente } from '@/models/Paciente';
 
-const ENDPOINT = 'clientes';
+const ENDPOINT = 'pacientes';
 const paciente = ref<Paciente>({
   id: 0,
   nombre: '',
@@ -124,6 +124,11 @@ async function handleSave() {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
@@ -134,31 +139,20 @@ label {
   margin-bottom: 5px;
 }
 
-/* 1. ESTILO GENERAL PARA EL TEXTO ESCRITO EN INPUTS DE PRIMEVUE */
-/* Usamos el selector profundo para asegurar que se aplique el color blanco al texto escrito */
-:deep(.p-inputtext input) {
-  /* ¡CLAVE! Fuerza el color blanco para el texto que se escribe */
-  color: white !important;
-  -webkit-text-fill-color: white !important; 
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-/* 2. ESTILO GENERAL PARA EL CONTENEDOR DE INPUTS DE PRIMEVUE */
-/* Esto controla el fondo y el borde de todos los InputText y Password */
-:deep(.p-inputtext) {
-  /* Fondo oscuro para mejor contraste */
-  background-color: #1a1a1a !important; 
-  /* Borde más claro para que se vea la caja */
-  border-color: #ccc !important; 
-  /* Asegura que el contenedor tenga el 100% del ancho */
-  width: 100%; 
-}
-
-/* 3. Estilos de la Contraseña (Aplica a todo el componente de PrimeVue) */
 #contraseña {
   width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-/* ... Mantener el resto de estilos de botón, etc., sin cambios ... */
 .password-group {
   position: relative;
 }
