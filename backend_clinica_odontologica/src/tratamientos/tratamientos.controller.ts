@@ -4,7 +4,7 @@ import { CreateTratamientoDto } from './dto/create-tratamiento.dto';
 import { UpdateTratamientoDto } from './dto/update-tratamiento.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@ApiBearerAuth()
+//@ApiBearerAuth()
 @ApiTags('tratamienos')
 @Controller('tratamientos')
 export class TratamientosController {
