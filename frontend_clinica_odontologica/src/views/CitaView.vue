@@ -19,7 +19,7 @@ function handleCreate() {
 }
 
 function handleEdit(cita: any) {
-  if (cita.pacienteId === pacienteId.value) {
+  if (cita.paciente.id === pacienteId.value) {
     citaEdit.value = cita // Solo permite editar si la cita pertenece al paciente autenticado
     mostrarDialog.value = true
   } else {
@@ -37,11 +37,28 @@ function handleGuardar() {
 </script>
 
 <template>
-  <div class="slider-background">
-    <div class="content-container">
-      <h1 class="title">Citas Programadas</h1>
-      <Button label="Crear Nueva Cita" icon="pi pi-plus" @click="handleCreate" />
-      <CitaList ref="CitaListRef" :paciente-id="pacienteId" @edit="handleEdit" />
+  <div class="page-container">
+    <div class="content-wrapper">
+      <div class="header-section">
+        <div class="header-content">
+          <h1 class="page-title">
+            <i class="pi pi-calendar" style="margin-right: 0.5rem;"></i>
+            Citas Programadas
+          </h1>
+          <Button
+            label="Crear Nueva Cita"
+            icon="pi pi-plus"
+            @click="handleCreate"
+            class="create-button"
+            severity="success"
+          />
+        </div>
+      </div>
+
+      <div class="list-section">
+        <CitaList ref="CitaListRef" :paciente-id="pacienteId" @edit="handleEdit" />
+      </div>
+
       <CitaSave
         :mostrar="mostrarDialog"
         :cita="citaEdit"
@@ -54,29 +71,99 @@ function handleGuardar() {
 </template>
 
 <style scoped>
-.slider-background {
-  background-color: #2700C1; /* Fondo sólido con el color especificado */
-  min-height: 100vh; /* Asegura que cubra al menos el alto de la ventana */
-  display: flex; /* Flexbox para centrar el contenido */
-  justify-content: center; /* Centra el contenido horizontalmente */
-  align-items: flex-start; /* Alinea el contenido al inicio vertical */
-  padding: 2rem; /* Espaciado interno */
+.page-container {
+  background: linear-gradient(rgba(39, 0, 193, 0.15), rgba(39, 0, 193, 0.25)),
+    #2700c1;
+  min-height: 100vh;
+  padding: 2rem 1rem;
 }
 
-.content-container {
-  background: rgba(255, 255, 255, 0.9); /* Fondo blanco semitransparente */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra */
-  padding: 2rem; /* Espaciado interno */
-  width: 100%; /* Ajusta al contenedor */
-  max-width: 1200px; /* Ancho máximo */
-  margin-top: 200px; /* Espaciado superior */
+.content-wrapper {
+  max-width: 1400px;
+  margin: 12% auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.title {
-  font-size: 2rem; /* Tamaño del título */
-  text-align: center; /* Centrado del título */
-  margin-bottom: 1.5rem; /* Espaciado inferior */
+.header-section {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #240090;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.create-button {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.list-section {
+  flex-grow: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .header-section {
+    border-radius: 0;
+    margin: -1rem -0.5rem 1rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    justify-content: center;
+  }
+
+  .create-button {
+    width: 100%;
+  }
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-section {
+  animation: slideDown 0.3s ease-out;
+}
 </style>

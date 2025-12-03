@@ -8,44 +8,99 @@ const CitaOdontologoListRef = ref<typeof CitaOdontologoList | null>(null)
 
 // Filtrar citas solo del cliente autenticado
 const pacienteId = computed(() => authStore.user?.id || null) // Obtiene el ID del cliente autenticado
-
 </script>
 
 <template>
-  <div class="slider-background">
-    <div class="content-container">
-      <h1 class="title">Citas Programadas</h1>
-      <CitaOdontologoList ref="CitaOdontologoListRef" :paciente-id="pacienteId" />
+  <div class="page-container">
+    <div class="content-wrapper">
+      <div class="header-section">
+        <div class="header-content">
+          <h1 class="page-title">
+            <i class="pi pi-calendar-plus" style="margin-right: 0.5rem;"></i>
+            Citas Programadas
+          </h1>
+        </div>
+      </div>
+      <div class="list-section">
+        <CitaOdontologoList ref="CitaOdontologoListRef" :paciente-id="pacienteId" />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.slider-background {
-  background-image: url('@/assets/images/slider/slider-1.png');
-  background-size: cover; /* Escala la imagen para cubrir todo el contenedor */
-  background-repeat: no-repeat; /* Evita que se repita */
-  background-position: center; /* Centra la imagen */
-  min-height: 100vh; /* Asegura que ocupe al menos el alto de la ventana */
-  display: flex; /* Habilita el centrado del contenido */
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center; /* Centra verticalmente */
-  padding: 2rem; /* Espaciado interno */
+.page-container {
+  background: linear-gradient(rgba(36, 0, 144, 0.1), rgba(36, 0, 144, 0.2)),
+    url('@/assets/images/slider/slider-1.png');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+.content-wrapper {
+  max-width: 1400px;
+  margin: 12% auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.content-container {
-  background: rgba(255, 255, 255, 0.9); /* Fondo blanco semitransparente */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra */
-  padding: 2rem; /* Espaciado interno */
-  width: 100%; /* Ajusta al contenedor */
-  max-width: 1200px; /* Ancho máximo */
-  margin-top: 200px;
+.header-section {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-.title {
-  font-size: 2rem; /* Tamaño del título */
-  text-align: center; /* Centrado del título */
-  margin-bottom: 1.5rem; /* Espaciado inferior */
+.header-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #240090;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.list-section {
+  flex-grow: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .header-section {
+    border-radius: 0;
+    margin: -1rem -0.5rem 1rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-section {
+  animation: slideDown 0.3s ease-out;
 }
 </style>

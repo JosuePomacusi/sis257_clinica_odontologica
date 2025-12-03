@@ -3,8 +3,10 @@ import Button from 'primevue/button'
 import { ref } from 'vue'
 import OdontologoList from '../components/odontologos/OdontologoList.vue'
 import OdontologoSave from '../components/odontologos/OdontologoSave.vue'
+import EspecialidadModal from '../components/especialidades/EspecialidadModal.vue'
 
 const mostrarDialog = ref<boolean>(false)
+const mostrarModalEspecialidad = ref<boolean>(false)
 const OdontologoListRef = ref<typeof OdontologoList | null>(null)
 const odontologoEdit = ref<any>(null)
 
@@ -25,6 +27,19 @@ function handleCloseDialog() {
 function handleGuardar() {
   OdontologoListRef.value?.obtenerLista()
 }
+
+function abrirModalEspecialidad() {
+  mostrarModalEspecialidad.value = true
+}
+
+function cerrarModalEspecialidad() {
+  mostrarModalEspecialidad.value = false
+}
+
+function especialidadGuardada() {
+  OdontologoListRef.value?.obtenerLista()
+  mostrarModalEspecialidad.value = false
+}
 </script>
 
 <template>
@@ -33,11 +48,25 @@ function handleGuardar() {
       <div class="header-section">
         <div class="header-content">
           <h1 class="page-title">
-            <i class="pi pi-users" style="margin-right: 0.5rem;"></i>
+            <i class="pi pi-users" style="margin-right: 0.5rem"></i>
             Gestión de Odontólogos
           </h1>
-          <Button label="Agregar Odontólogo" icon="pi pi-plus" @click="handleCreate" class="create-button"
-            severity="success" />
+          <div class="action-buttons">
+            <Button
+              label="Nueva Especialidad"
+              icon="pi pi-briefcase"
+              @click="abrirModalEspecialidad"
+              class="specialty-button"
+              severity="info"
+            />
+            <Button
+              label="Agregar Odontólogo"
+              icon="pi pi-plus"
+              @click="handleCreate"
+              class="create-button"
+              severity="success"
+            />
+          </div>
         </div>
       </div>
 
@@ -45,8 +74,19 @@ function handleGuardar() {
         <OdontologoList ref="OdontologoListRef" @edit="handleEdit" />
       </div>
 
-      <OdontologoSave :mostrar="mostrarDialog" :odontologo="odontologoEdit" :modoEdicion="!!odontologoEdit"
-        @guardar="handleGuardar" @close="handleCloseDialog" />
+      <OdontologoSave
+        :mostrar="mostrarDialog"
+        :odontologo="odontologoEdit"
+        :modoEdicion="!!odontologoEdit"
+        @guardar="handleGuardar"
+        @close="handleCloseDialog"
+      />
+
+      <EspecialidadModal
+        :mostrar="mostrarModalEspecialidad"
+        @guardar="especialidadGuardada"
+        @close="cerrarModalEspecialidad"
+      />
     </div>
   </div>
 </template>
@@ -92,7 +132,13 @@ function handleGuardar() {
   align-items: center;
 }
 
-.create-button {
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.create-button,
+.specialty-button {
   padding: 0.75rem 1.5rem;
   font-weight: 500;
   transition: all 0.2s ease;
@@ -129,7 +175,13 @@ function handleGuardar() {
     justify-content: center;
   }
 
-  .create-button {
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .create-button,
+  .specialty-button {
     width: 100%;
   }
 }
