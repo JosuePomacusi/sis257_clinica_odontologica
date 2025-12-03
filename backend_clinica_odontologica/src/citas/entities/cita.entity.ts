@@ -21,14 +21,14 @@ export class Cita {
   @Column('varchar', { length: 50 })
   estado: string;
 
-  @Column('integer', { name: 'cliente_id' })
-  clienteId: number;
+  @Column('integer', { name: 'paciente_id' })
+  pacienteId: number;
 
   @Column('integer', { name: 'odontologo_id' })
   odontologoId: number;
 
-  @Column('integer', { name: 'servicio_id' })
-  servicioId: number;
+  @Column('integer', { name: 'tratamiento_id' })
+  tratamientoId: number;
 
   // Agregado para manejar un rango de tiempo
   @Column('timestamp', { name: 'fecha_hora_inicio' })

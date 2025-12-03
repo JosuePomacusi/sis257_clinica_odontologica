@@ -1,88 +1,41 @@
+import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
+import { Odontologo } from '../../odontologos/entities/odontologo.entity';
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  BadRequestException,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
-import { OdontologosServiciosService } from './odontologo_servicios.service';
-import { CreateOdontologoServicioDto } from './dto/create-odontologo_servicio.dto';
-import { UpdateOdontologoServicioDto } from './dto/update-odontologo_servicio.dto';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
-import { OdontologoServicio } from './entities/odontologo_servicio.entity';
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@ApiBearerAuth()
-@ApiTags('Odontologos_Servicios')
-@Controller('odontologos_servicios')
-export class OdontologosServiciosController {
-  constructor(private readonly odontologoServiciosService: OdontologosServiciosService) {}
+@Entity('odontologo_servicios')
+export class OdontologoServicio {
+  @PrimaryGeneratedColumn('identity')
+  id: number;
 
-  @Post()
-  create(@Body() createOdontologoServicioDto: CreateOdontologoServicioDto) {
-    return this.odontologoServiciosService.create(createOdontologoServicioDto);
-  }
+  @Column('integer', { name: 'odontologo_id' })
+  odontologoId: number;
 
-  @Get()
-  findAll() {
-    return this.odontologoServiciosService.findAll();
-  }
+  @Column('integer', { name: 'servicio_id' })
+  tratamientoId: number;
 
-  @Get('mis-servicios')
-  async findMisServicios(@Req() req: any) {
-    const odontologoId = req.user.id; // Extraer el ID del usuario autenticado
-    return this.odontologoServiciosService.findByOdontologoId(odontologoId);
-  }
-  @Get('mis-servicios-disponibles')
-  async findServiciosDisponibles(@Req() req: any) {
-    const odontologoId = req.user.id;
-    return this.odontologoServiciosService.findServiciosDisponibles(odontologoId);
-  }
+  @CreateDateColumn({ name: 'fecha_creacion' })
+  fechaCreacion: Date;
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<OdontologoServicio> {
-    const parsedId = parseInt(id, 10);
-    if (isNaN(parsedId)) {
-      throw new BadRequestException('El id debe ser un número entero');
-    }
-    return this.odontologoServiciosService.findOne(parsedId);
-  }
+  @UpdateDateColumn({ name: 'fecha_modificacion' })
+  fechaModificacion: Date;
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateOdontologoServicioDto: UpdateOdontologoServicioDto,
-  ) {
-    return this.odontologoServiciosService.update(+id, updateOdontologoServicioDto);
-  }
+  @DeleteDateColumn({ name: 'fecha_eliminacion', select: false })
+  fechaEliminacion: Date;
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.odontologoServiciosService.remove(+id);
-  }
+  @ManyToOne(() => Odontologo, odontologo => odontologo.odontologo_servicios)
+  @JoinColumn({ name: 'odontologo_id', referencedColumnName: 'id' })
+  odontologo: Odontologo;
 
-  @Delete('eliminar-relacion/:odontologoId/:servicioId')
-  async eliminarRelacion(
-    @Param('odontologoId') odontologoId: number,
-    @Param('servicioId') servicioId: number,
-  ) {
-    try {
-      const result = await this.odontologoServiciosService.eliminarRelacion(
-        odontologoId,
-        servicioId,
-      );
-
-      if (!result) {
-        throw new BadRequestException('La relación no fue encontrada o ya fue eliminada');
-      }
-
-      return { message: 'Relación eliminada correctamente' };
-    } catch (error) {
-      throw new BadRequestException(error.message || 'Error al eliminar la relación');
-    }
-  }
+  @ManyToOne(() => Tratamiento, tratamiento => tratamiento.odontologo_servicios)
+  @JoinColumn({ name: 'tratamiento_id', referencedColumnName: 'id' })
+  tratamiento: Tratamiento;
 }

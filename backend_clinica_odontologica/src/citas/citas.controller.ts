@@ -14,7 +14,7 @@ import { CreateCitaDto } from './dto/create-cita.dto';
 import { UpdateCitaDto } from './dto/update-cita.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@ApiBearerAuth()
+//@ApiBearerAuth()
 @ApiTags('citas')
 @Controller('citas')
 export class CitasController {

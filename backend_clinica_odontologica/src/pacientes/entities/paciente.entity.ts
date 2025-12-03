@@ -14,7 +14,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { HistorialMedico } from 'src/historial-medico/entities/historial-medico.entity';
 
 @Entity('pacientes')
 export class Paciente {
@@ -76,6 +75,4 @@ export class Paciente {
 
   @OneToMany(() => Cita, cita => cita.paciente)
   citas: Cita[];
-  @OneToMany(() => HistorialMedico, historial => historial.paciente)
-  historial: HistorialMedico[];
 }
