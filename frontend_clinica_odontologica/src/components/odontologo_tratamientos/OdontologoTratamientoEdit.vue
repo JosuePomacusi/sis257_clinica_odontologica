@@ -1,240 +1,293 @@
 <script setup lang="ts">
-import type { Odontologo } from '../../models/Odontologo'
+import { ref, onMounted, computed, watch } from 'vue'
 import http from '../../plugins/axios'
+import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
+import type { Odontologo_tratamiento as Odontologo_tratamiento } from '../../models/Odontologo_tratamiento'
+import type { Odontologo } from '../../models/Odontologo'
+import type { Tratamiento } from '../../models/Tratamientos'
 import Dialog from 'primevue/dialog'
-import { onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 
 const toast = useToast()
 
-const ENDPOINT = 'odontologos'
-let odontologos = ref<Odontologo[]>([])
+const props = defineProps({
+  mostrar: Boolean,
+  relacion: {
+    type: Object as () => Odontologo_tratamiento,
+    default: () => ({ id: 0, odontologo_id: 0, tratamiento_id: 0 }),
+  },
+  modoEdicion: Boolean,
+})
 
-const emit = defineEmits(['edit'])
-const odontologoDelete = ref<Odontologo | null>(null)
-const mostrarConfirmDialog = ref<boolean>(false)
+const emit = defineEmits(['guardar', 'close'])
 
-async function obtenerLista() {
-  odontologos.value = await http.get(ENDPOINT).then(response => response.data)
+// Controlar la visibilidad del diálogo
+const dialogVisible = computed({
+  get: () => props.mostrar,
+  set: value => {
+    if (!value) emit('close')
+  },
+})
+
+// Datos de odontólogos y servicios
+const odontologos = ref<Odontologo[]>([])
+const tratamientos = ref<Tratamiento[]>([])
+
+// Relación editable
+const relacion = ref({
+  id: props.relacion.id,
+  odontologo_id: props.relacion.odontologo_id,
+  tratamiento_id: props.relacion.tratamiento_id,
+})
+
+// Actualizar `relacion` cuando cambie `props.relacion`
+watch(
+  () => props.relacion,
+  newRelacion => {
+    relacion.value = { ...newRelacion }
+  },
+  { immediate: true },
+)
+
+// Cargar odontólogos y servicios
+async function cargarDatos() {
+  const [odontologoResponse, tratamientoResponse] = await Promise.all([
+    http.get('odontologos'),
+    http.get('tratamientos'),
+  ])
+  odontologos.value = odontologoResponse.data
+  tratamientos.value = tratamientoResponse.data
 }
 
-function emitirEdicion(odontologo: Odontologo) {
-  emit('edit', odontologo)
-}
+// Guardar cambios
+async function handleEditSave() {
+  try {
+    if (!relacion.value.odontologo_id || !relacion.value.tratamiento_id) {
+      toast.add({ severity: 'warn', summary: 'Error', detail: 'Debe seleccionar un odontólogo y un tratamiento', life: 3000 });
+      return
+    }
 
-function mostrarEliminarConfirm(odontologo: Odontologo) {
-  odontologoDelete.value = odontologo
-  mostrarConfirmDialog.value = true
-}
+    // Crear el cuerpo con el id de la relación y el nuevo servicio
+    const body = {
+      odontologoId: relacion.value.odontologo_id, // Este no cambia
+      tratamientoId: relacion.value.tratamiento_id, // Este sí cambia
+    }
 
-async function eliminar() {
-  await http.delete(`${ENDPOINT}/${odontologoDelete.value?.id}`)
-  toast.add({
-        severity: 'success',
-        summary: 'Odontologo Eliminado',
-        detail: 'Los datos del Odontologo se han eliminado correctamente',
-        life: 3000
-      })
-  obtenerLista()
-  mostrarConfirmDialog.value = false
+    // Enviar el PATCH con el ID de la relación
+    await http.patch(`odontologos_tratamientos/${relacion.value.id}`, body)
+
+    // Emitir evento para recargar la lista
+    emit('guardar')
+    dialogVisible.value = false
+  } catch (error: any) {
+    console.error(error)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Error desconocido', life: 3000 });
+    
+  }
 }
 
 onMounted(() => {
-  obtenerLista()
+  cargarDatos()
 })
-
-defineExpose({ obtenerLista })
 </script>
 
 <template>
-  <div class="dentists-container">
-    <div class="table-wrapper">
-      <table class="dentists-table">
-        <thead>
-          <tr>
-            <th class="th-number">Nro.</th>
-            <th>Nombre</th>
-            <th>Primer Apellido</th>
-            <th>Segundo Apellido</th>
-            <th>Especialidad</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th class="th-actions">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(odontologo, index) in odontologos" :key="odontologo.id">
-            <td class="td-number">{{ index + 1 }}</td>
-            <td>{{ odontologo.nombre }}</td>
-            <td>{{ odontologo.primerApellido }}</td>
-            <td>{{ odontologo.segundoApellido }}</td>
-            <td>
-              <span class="specialty-tag">{{ odontologo.especialidad }}</span>
-            </td>
-            <td>{{ odontologo.email }}</td>
-            <td>{{ odontologo.telefono }}</td>
-            <td class="actions-column">
-              <div class="actions-wrapper">
-                <Button icon="pi pi-pencil" aria-label="Editar" text class="edit-button p-button-rounded"
-                  @click="emitirEdicion(odontologo)" />
-                <Button icon="pi pi-trash" aria-label="Eliminar" text class="delete-button p-button-rounded"
-                  @click="mostrarEliminarConfirm(odontologo)" />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <Dialog
+    v-model:visible="dialogVisible"
+    :header="props.modoEdicion ? 'Editar Relación' : 'Crear Nueva Relación'"
+    :modal="true"
+    :closable="true"
+    :draggable="false"
+    class="custom-dialog"
+    style="width: 550px; max-width: 95vw"
+  >
+    <div class="form-container">
+      <!-- Odontólogo -->
+      <div class="form-field">
+        <label class="form-label">
+          <i class="pi pi-user"></i>
+          Odontólogo
+        </label>
+        <Dropdown
+          v-model="relacion.odontologo_id"
+          :options="odontologos"
+          :disabled="modoEdicion"
+          option-label="nombre"
+          option-value="id"
+          placeholder="Seleccione un odontólogo"
+          class="form-dropdown"
+        />
+      </div>
 
-    <Dialog v-model:visible="mostrarConfirmDialog" header="Confirmar Eliminación" :style="{ width: '400px' }" modal
-      :closable="false" class="delete-dialog">
-      <div class="dialog-content">
-        <i class="pi pi-exclamation-triangle" style="font-size: 2rem; color: #ff9800;"></i>
-        <p>¿Estás seguro de que deseas eliminar este registro?</p>
+      <!-- Tratamiento -->
+      <div class="form-field">
+        <label class="form-label">
+          <i class="pi pi-heart"></i>
+          Tratamiento
+        </label>
+        <Dropdown
+          v-model="relacion.tratamiento_id"
+          :options="tratamientos"
+          option-label="nombre"
+          option-value="id"
+          placeholder="Seleccione un tratamiento"
+          class="form-dropdown"
+        />
       </div>
-      <div class="dialog-footer">
-        <Button label="Cancelar" class="p-button-text cancel-button" @click="mostrarConfirmDialog = false" />
-        <Button label="Eliminar" class="p-button-danger confirm-delete-button" @click="eliminar" />
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <Button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          class="btn-cancel"
+          @click="dialogVisible = false"
+        />
+        <Button 
+          label="Guardar" 
+          icon="pi pi-check" 
+          class="btn-save"
+          @click="handleEditSave" 
+        />
       </div>
-    </Dialog>
-  </div>
+    </div>
+  </Dialog>
 </template>
 
 <style scoped>
-.dentists-container {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  max-height: calc(100vh - 300px);
-}
-
-.dentists-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  min-width: 1000px;
-}
-
-.dentists-table th {
-  background-color: #240090;
+.custom-dialog :deep(.p-dialog-header) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
 }
 
-.th-number {
-  width: 70px;
+.custom-dialog :deep(.p-dialog-header-icon) {
+  color: white;
 }
 
-.th-actions {
-  width: 120px;
+.custom-dialog :deep(.p-dialog-header-icon):hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.dentists-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  transition: background-color 0.2s;
+.custom-dialog :deep(.p-dialog-content) {
+  padding: 2rem;
+  background-color: #f8f9fa;
 }
 
-.td-number {
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.dentists-table tbody tr:hover {
-  background-color: #f8fafc;
-}
-
-.specialty-tag {
-  background-color: #ecfdf5;
-  color: #047857;
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-.actions-column {
-  padding: 0.5rem !important;
-}
-
-.actions-wrapper {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-.edit-button {
-  color: #047857 !important;
-}
-
-.delete-button {
-  color: #dc2626 !important;
-}
-
-.edit-button:hover,
-.delete-button:hover {
-  background-color: #f1f5f9 !important;
-}
-
-.delete-dialog {
-  border-radius: 8px;
-}
-
-.dialog-content {
+.form-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 0;
-  text-align: center;
+  gap: 1.5rem;
 }
 
-.dialog-footer {
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-label i {
+  color: #667eea;
+  font-size: 1rem;
+}
+
+.form-dropdown {
+  width: 100%;
+}
+
+.form-dropdown :deep(.p-dropdown) {
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.form-dropdown :deep(.p-dropdown:hover) {
+  border-color: #cbd5e0;
+}
+
+.form-dropdown :deep(.p-dropdown:focus) {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
 }
 
-/* Responsive styles */
+.btn-cancel {
+  background-color: #e2e8f0 !important;
+  color: #4a5568 !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #cbd5e0 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .dentists-container {
-    border-radius: 0;
-    margin: -1rem;
+  .custom-dialog :deep(.p-dialog-content) {
+    padding: 1.5rem;
   }
 
-  .table-wrapper {
-    max-height: calc(100vh - 200px);
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    width: 100%;
   }
 }
 
-/* Animations */
-@keyframes fadeIn {
+/* Animaciones */
+@keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(-20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.dentists-container {
-  animation: fadeIn 0.3s ease-out;
+.form-container {
+  animation: slideIn 0.3s ease-out;
 }
 </style>
