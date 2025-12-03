@@ -61,6 +61,7 @@ label {
   font-weight: bold;
   display: block;
   margin-bottom: 8px;
+  color: #ffffff;
 }
 
 input {
@@ -68,4 +69,57 @@ input {
   padding: 8px;
   font-size: 1rem;
 }
+/* Estilo para los labels */
+label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+/* Estilo para los inputs */
+input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  color: #ffffff; /* Texto blanco */
+  background-color: #e6c4c4; /* Fondo oscuro */
+  border: 1px solid #00ff40; /* Borde verde */
+  border-radius: 6px; /* Bordes redondeados */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Transiciones suaves */
+}
+
+/* Placeholder estilizado */
+input::placeholder {
+  color: #aaaaaa; /* Placeholder gris claro */
+  font-style: italic; /* Opcional: texto en cursiva */
+}
+
+/* Efecto al enfocar el input */
+input:focus {
+  border-color: #4caf50; /* Borde verde brillante */
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); /* Sombra verde */
+  outline: none; /* Quitar el contorno predeterminado */
+}
+
+/* Botones personalizados */
+.button-group .p-button-danger {
+  background-color: #f44336; /* Rojo */
+  color: #ffffff; /* Texto blanco */
+  border: none;
+}
+
+.button-group .p-button-danger:hover {
+  background-color: #d32f2f; /* Rojo más oscuro */
+}
+
+.button-group .p-button-text {
+  color: #9e9e9e; /* Gris claro */
+}
+
+.button-group .p-button-text:hover {
+  color: #ffffff; /* Blanco al pasar el mouse */
+}
+
 </style>

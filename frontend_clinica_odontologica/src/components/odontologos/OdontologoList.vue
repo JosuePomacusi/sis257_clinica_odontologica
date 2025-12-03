@@ -5,6 +5,7 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import { onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import EspecialidadModal from '../especialidades/EspecialidadModal.vue'
 
 const toast = useToast()
 
@@ -14,6 +15,7 @@ let odontologos = ref<Odontologo[]>([])
 const emit = defineEmits(['edit'])
 const odontologoDelete = ref<Odontologo | null>(null)
 const mostrarConfirmDialog = ref<boolean>(false)
+const mostrarModalEspecialidad = ref<boolean>(false)
 
 async function obtenerLista() {
   odontologos.value = await http.get(ENDPOINT).then(response => response.data)
@@ -40,6 +42,19 @@ async function eliminar() {
   mostrarConfirmDialog.value = false
 }
 
+function abrirModalEspecialidad() {
+  mostrarModalEspecialidad.value = true
+}
+
+function cerrarModalEspecialidad() {
+  mostrarModalEspecialidad.value = false
+}
+
+function especialidadGuardada() {
+  obtenerLista()
+  mostrarModalEspecialidad.value = false
+}
+
 onMounted(() => {
   obtenerLista()
 })
@@ -48,12 +63,18 @@ defineExpose({ obtenerLista })
 </script>
 
 <template>
+  <EspecialidadModal
+    :mostrar="mostrarModalEspecialidad"
+    @guardar="especialidadGuardada"
+    @close="cerrarModalEspecialidad"
+  />
   <div class="dentists-container">
     <div class="table-wrapper">
       <table class="dentists-table">
         <thead>
           <tr>
             <th class="th-number">Nro.</th>
+            <th class="th-photo">Foto</th>
             <th>Nombre</th>
             <th>Primer Apellido</th>
             <th>Segundo Apellido</th>
@@ -66,11 +87,24 @@ defineExpose({ obtenerLista })
         <tbody>
           <tr v-for="(odontologo, index) in odontologos" :key="odontologo.id">
             <td class="td-number">{{ index + 1 }}</td>
+            <td class="td-photo">
+              <div class="photo-container">
+                <img 
+                  v-if="odontologo.imagen" 
+                  :src="odontologo.imagen" 
+                  :alt="odontologo.nombre"
+                  class="dentist-photo"
+                />
+                <div v-else class="photo-placeholder">
+                  <i class="pi pi-user"></i>
+                </div>
+              </div>
+            </td>
             <td>{{ odontologo.nombre }}</td>
             <td>{{ odontologo.primerApellido }}</td>
             <td>{{ odontologo.segundoApellido }}</td>
             <td>
-              <span class="specialty-tag">{{ odontologo.especialidad }}</span>
+              <span class="specialty-tag">{{ odontologo.especialidad?.nombre || 'Sin especialidad' }}</span>
             </td>
             <td>{{ odontologo.email }}</td>
             <td>{{ odontologo.telefono }}</td>
@@ -136,8 +170,44 @@ defineExpose({ obtenerLista })
   width: 70px;
 }
 
+.th-photo {
+  width: 80px;
+}
+
 .th-actions {
   width: 120px;
+}
+
+.photo-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e5e7eb;
+}
+
+.dentist-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 1.5rem;
+}
+
+.td-photo {
+  padding: 0.5rem !important;
 }
 
 .dentists-table td {

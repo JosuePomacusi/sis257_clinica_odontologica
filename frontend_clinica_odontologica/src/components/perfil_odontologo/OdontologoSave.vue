@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import type { Odontologo } from '../../models/Odontologo';
-import { ref, watch } from 'vue';
+import type { Odontologo, Especialidad } from '../../models/Odontologo';
+import { ref, watch, onMounted } from 'vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import Select from 'primevue/select';
+import http from '../../plugins/axios';
 
 // Props: Odontologo a editar y modo edición
 const props = defineProps({
@@ -21,14 +23,32 @@ const emit = defineEmits(['guardar', 'cancelar']);
 
 // Estado local del odontologo (clonado desde las props)
 const odontologo = ref<Odontologo>({ ...props.odontologo });
+const especialidades = ref<Especialidad[]>([]);
+const especialidadSeleccionada = ref<number | null>(null);
 
 // Sincronizar cambios si las props cambian
 watch(
   () => props.odontologo,
   (newVal) => {
     odontologo.value = { ...newVal };
+    especialidadSeleccionada.value = newVal.especialidad?.id || null;
   },
 );
+
+// Cargar especialidades
+async function obtenerEspecialidades() {
+  try {
+    const response = await http.get('especialidades');
+    especialidades.value = response.data;
+  } catch (error) {
+    console.error('Error al cargar especialidades:', error);
+  }
+}
+
+onMounted(() => {
+  obtenerEspecialidades();
+  especialidadSeleccionada.value = props.odontologo.especialidad?.id || null;
+});
 
 // Función para reiniciar los valores originales
 function cancelarEdicion() {
@@ -38,7 +58,11 @@ function cancelarEdicion() {
 
 // Función para guardar los cambios
 function guardar() {
-  emit('guardar', odontologo.value); // Emitir el odontologo actualizado al padre
+  const odontologoActualizado = {
+    ...odontologo.value,
+    especialidadId: especialidadSeleccionada.value
+  };
+  emit('guardar', odontologoActualizado); // Emitir el odontologo actualizado al padre
 }
 </script>
 
@@ -92,11 +116,14 @@ function guardar() {
     <!-- Especialidad -->
     <div class="form-group">
       <label for="especialidad" class="font-semibold w-24">Especialidad</label>
-      <InputText
+      <Select
         id="especialidad"
-        v-model="odontologo.especialidad"
+        v-model="especialidadSeleccionada"
+        :options="especialidades"
+        optionLabel="nombre"
+        optionValue="id"
+        placeholder="Seleccione una especialidad"
         class="flex-auto"
-        autocomplete="off"
       />
     </div>
 
@@ -122,6 +149,24 @@ function guardar() {
       />
     </div>
 
+    <!-- URL de Imagen -->
+    <div class="form-group">
+      <label for="imagen" class="font-semibold w-24">URL Imagen</label>
+      <InputText
+        id="imagen"
+        v-model="odontologo.imagen"
+        class="flex-auto"
+        autocomplete="off"
+        placeholder="https://ejemplo.com/foto.jpg"
+        maxlength="255"
+      />
+    </div>
+
+    <!-- Preview de la imagen -->
+    <div v-if="odontologo.imagen" class="image-preview-wrapper">
+      <img :src="odontologo.imagen" alt="Preview" class="image-preview" @error="(e) => (e.target as HTMLImageElement).src = ''" />
+    </div>
+
     <!-- Botones de acción -->
     <div class="button-group flex justify-end gap-2">
       <Button
@@ -144,55 +189,105 @@ function guardar() {
 
 <style scoped>
 .card {
-  max-width: 600px; /* Ancho máximo */
-  margin: 0 auto; /* Centrar */
-  padding: 20px; /* Espaciado interno */
-  border: 1px solid #ddd; /* Borde */
-  border-radius: 8px; /* Bordes redondeados */
-  background-color: #f9f9f9; /* Fondo claro */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 25px;
+  border: none;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Agrupación de formulario */
 .form-group {
-  display: flex; /* Alinear en fila */
-  align-items: center; /* Alinear verticalmente */
-  gap: 10px; /* Espaciado entre etiqueta y campo */
-  margin-bottom: 1rem; /* Espaciado inferior */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1.25rem;
 }
 
 label {
-  font-size: 1rem; /* Tamaño de texto */
-  font-weight: bold; /* Texto en negrita */
-  color: #333; /* Color del texto */
-  width: 150px; /* Ancho de la etiqueta */
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-input {
-  padding: 10px; /* Espaciado interno */
-  border: 1px solid #ccc; /* Borde */
-  border-radius: 4px; /* Bordes redondeados */
-  font-size: 1rem; /* Tamaño de texto */
-  flex: 1; /* Expande para ocupar el espacio disponible */
+:deep(.p-inputtext),
+:deep(.p-select) {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #2c3e50 !important;
+  -webkit-text-fill-color: #2c3e50 !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease;
 }
 
-input:focus {
-  border-color: #4caf50; /* Borde verde al enfocar */
-  outline: none; /* Quitar contorno por defecto */
+:deep(.p-inputtext:focus),
+:deep(.p-select:focus) {
+  border-color: #240090;
+  box-shadow: 0 0 0 0.2rem rgba(36, 0, 144, 0.15);
+  outline: none;
+}
+
+:deep(.p-select .p-select-label) {
+  color: #2c3e50 !important;
+  -webkit-text-fill-color: #2c3e50 !important;
+}
+
+:deep(.p-select-option) {
+  color: #2c3e50 !important;
+}
+
+/* Preview de imagen */
+.image-preview-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.image-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #240090;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Botones */
-.button-group .p-button-primary {
-  background-color: #4caf50; /* Verde principal */
-  border: none;
+.button-group {
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
 }
 
-.button-group .p-button-primary:hover {
-  background-color: #45a049; /* Verde más oscuro */
+:deep(.p-button-primary) {
+  background-color: #240090 !important;
+  border-color: #240090 !important;
+  padding: 10px 24px;
+  color:white !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-.button-group .p-button-text {
-  color: #f44336; /* Rojo */
+:deep(.p-button-primary:hover) {
+  background-color: #1a0066 !important;
+  border-color: #1a0066 !important;
+  transform: translateY(-1px);
+}
+
+:deep(.p-button-text) {
+  color: #6c757d !important;
+  padding: 10px 24px;
+  font-weight: 600;
+}
+
+:deep(.p-button-text:hover) {
+  background-color: #f8f9fa !important;
+  color: #495057 !important;
 }
 </style>
   

@@ -68,6 +68,21 @@ onMounted(() => {
 <template>
   <div>
     <div v-if="odontologo" class="card flex flex-column gap-4">
+      <!-- Foto del odontólogo -->
+      <div class="flex justify-center mb-4">
+        <div class="photo-container">
+          <img 
+            v-if="odontologo.imagen" 
+            :src="odontologo.imagen" 
+            :alt="odontologo.nombre"
+            class="profile-photo"
+          />
+          <div v-else class="photo-placeholder">
+            <i class="pi pi-user"></i>
+          </div>
+        </div>
+      </div>
+
       <div class="flex items-center gap-4 mb-4">
         <label for="nombre" class="font-semibold w-24">Nombre</label>
         <InputText
@@ -113,7 +128,7 @@ onMounted(() => {
         <label for="especialidad" class="font-semibold w-24">Especialidad</label>
         <InputText
           id="especialidad"
-          :value="odontologo.especialidad"
+          :value="odontologo.especialidad?.nombre || 'Sin especialidad'"
           disabled
           class="flex-auto"
         />
@@ -167,44 +182,97 @@ onMounted(() => {
 <style scoped>
 /* Contenedor principal del formulario */
 .card {
-  max-width: 600px; /* Define un ancho máximo para el formulario */
-  margin: 0 auto; /* Centra horizontalmente el formulario */
-  padding: 20px; /* Espaciado interno */
-  background-color: #f9f9f9; /* Color de fondo claro */
-  border: 1px solid #ddd; /* Borde del formulario */
-  border-radius: 10px; /* Bordes redondeados */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra para resaltar el formulario */
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Contenedor de la foto */
+.photo-container {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #240090;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 4rem;
 }
 
 /* Ajustes para las filas del formulario */
 .flex {
-  display: flex; /* Usar flexbox para organizar los elementos */
-  align-items: center; /* Alinear verticalmente */
+  display: flex;
+  align-items: center;
 }
 
 /* Etiquetas */
 label {
-  font-size: 1.2rem; /* Tamaño de fuente estándar */
-  font-weight: bold; /* Texto en negrita */
-  color: #333; /* Color de las etiquetas */
-  width: 180px; /* Ancho fijo para alinear etiquetas */
-  text-align: start; /* Alinear texto de las etiquetas a la derecha */
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  width: 180px;
+  text-align: start;
 }
 
 /* Campos deshabilitados */
-input[disabled],
-textarea[disabled] {
-  background-color: #f2f2f2; /* Fondo gris claro */
-  cursor: not-allowed; /* Cursor indicando no editable */
+:deep(.p-inputtext) {
+  background-color: #f8f9fa !important;
+  color: #2c3e50 !important;
+  font-weight: 500 !important;
+  border: 1px solid #ced4da !important;
+}
+
+:deep(.p-inputtext:disabled) {
+  background-color: #e9ecef !important;
+  color: #2c3e50 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #2c3e50 !important;
+  cursor: not-allowed;
+}
+
+/* Para navegadores webkit */
+:deep(.p-inputtext:disabled::-webkit-input-placeholder) {
+  color: #2c3e50 !important;
+  opacity: 1 !important;
 }
 
 /* Botón Editar */
 .p-button-text {
-  color: #4caf50; /* Verde para el botón de editar */
-  font-weight: bold; /* Texto en negrita */
+  color: #240090 !important;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 .p-button-text:hover {
-  background-color: rgba(76, 175, 80, 0.1); /* Fondo verde claro al pasar */
+  background-color: rgba(36, 0, 144, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+/* Botón de eliminar */
+.p-button-danger {
+  color: #dc3545 !important;
+}
+
+.p-button-danger:hover {
+  background-color: rgba(220, 53, 69, 0.1) !important;
 }
 </style>

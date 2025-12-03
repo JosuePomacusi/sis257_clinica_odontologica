@@ -18,7 +18,7 @@ const emit = defineEmits(['editar', 'cambiarPassword']) // Ahora incluye 'cambia
 // Cargar los datos del cliente autenticado desde el backend
 async function cargarClienteAutenticado() {
   try {
-    paciente.value = await http.get('clientes/mi-perfil').then(res => res.data)
+    paciente.value = await http.get('pacientes/mi-perfil').then(res => res.data)
   } catch (error) {
     console.error('Error al cargar los datos del cliente:', error)
     toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los datos del cliente.', life: 3000 });
@@ -30,7 +30,7 @@ async function eliminarCuenta() {
   if (confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) {
     try {
       // Solicitud al backend para eliminar la cuenta
-      await http.delete(`clientes/${paciente.value?.id}`);
+      await http.delete(`pacientes/${paciente.value?.id}`);
 
       // Cerrar sesión y redirigir al inicio
       authStore.logout(); // Asegúrate de tener un método para cerrar sesión
@@ -99,65 +99,54 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Contenedor principal del formulario */
 .card {
   max-width: 600px;
-  /* Define un ancho máximo para el formulario */
   margin: 0 auto;
-  /* Centra horizontalmente el formulario */
-  padding: 20px;
-  /* Espaciado interno */
-  background-color: #f9f9f9;
-  /* Color de fondo claro */
-  border: 1px solid #ddd;
-  /* Borde del formulario */
-  border-radius: 10px;
-  /* Bordes redondeados */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  /* Sombra para resaltar el formulario */
+  padding: 30px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Ajustes para las filas del formulario */
 .flex {
   display: flex;
-  /* Usar flexbox para organizar los elementos */
   align-items: center;
-  /* Alinear verticalmente */
 }
 
-/* Etiquetas */
 label {
-  font-size: 1.2rem;
-  /* Tamaño de fuente estándar */
-  font-weight: bold;
-  /* Texto en negrita */
-  color: #333;
-  /* Color de las etiquetas */
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
   width: 180px;
-  /* Ancho fijo para alinear etiquetas */
   text-align: start;
-  /* Alinear texto de las etiquetas a la derecha */
 }
 
-/* Campos deshabilitados */
-input[disabled],
-textarea[disabled] {
-  background-color: #f2f2f2;
-  /* Fondo gris claro */
+:deep(.p-inputtext:disabled) {
+  background-color: #f8f9fa !important;
+  color: #495057 !important;
+  -webkit-text-fill-color: #495057 !important;
+  opacity: 1 !important;
   cursor: not-allowed;
-  /* Cursor indicando no editable */
+  border: 1px solid #dee2e6 !important;
 }
 
-/* Botón Editar */
 .p-button-text {
-  color: #4caf50;
-  /* Verde para el botón de editar */
+  color: #240090 !important;
   font-weight: bold;
-  /* Texto en negrita */
+  transition: all 0.3s ease;
 }
 
 .p-button-text:hover {
-  background-color: rgba(76, 175, 80, 0.1);
-  /* Fondo verde claro al pasar */
+  background-color: rgba(36, 0, 144, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+.p-button-danger {
+  color: #dc3545 !important;
+}
+
+.p-button-danger:hover {
+  background-color: rgba(220, 53, 69, 0.1) !important;
 }
 </style>

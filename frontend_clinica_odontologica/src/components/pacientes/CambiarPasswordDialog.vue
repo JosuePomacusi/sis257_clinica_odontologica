@@ -71,7 +71,7 @@ input {
 /* Estilo para los labels */
 label {
   font-weight: bold;
-  color: #000000; /* Blanco */
+  color: #ffffff; /* Blanco */
   display: block;
   margin-bottom: 8px;
 }

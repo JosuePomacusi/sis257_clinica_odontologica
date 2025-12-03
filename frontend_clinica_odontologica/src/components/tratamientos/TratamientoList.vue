@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import type { Tratamientos } from '../../models/Tratamientos'
+import type { Tratamiento } from '../../models/Tratamientos'
 import http from '../../plugins/axios'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import { onMounted, ref } from 'vue'
 
 const ENDPOINT = 'tratamientos'
-const tratamientos = ref<Tratamientos[]>([])
+const tratamientos = ref<Tratamiento[]>([])
 
 const emit = defineEmits(['edit'])
-const tratamientoDelete = ref<Tratamientos | null>(null)
+const tratamientoDelete = ref<Tratamiento | null>(null)
 const mostrarConfirmDialog = ref<boolean>(false)
 
 async function obtenerLista() {
   tratamientos.value = await http.get(ENDPOINT).then(response => response.data)
-  tratamientos.value.sort((a, b) => a.id - b.id) // Ordenar por ID
+  tratamientos.value.sort((a: Tratamiento, b: Tratamiento) => a.id - b.id) // Ordenar por ID
 }
 
-function emitirEdicion(tratamiento: Tratamientos) {
+function emitirEdicion(tratamiento: Tratamiento) {
   emit('edit', tratamiento)
 }
 
-function mostrarEliminarConfirm(tratamiento: Tratamientos) {
+function mostrarEliminarConfirm(tratamiento: Tratamiento) {
   tratamientoDelete.value = tratamiento
   mostrarConfirmDialog.value = true
 }
