@@ -1,3 +1,13 @@
+
+export interface Especialidad {
+  id: number
+  nombre: string
+  descripcion: string
+  fechaCreacion: string
+  fechaModificacion: string
+  fechaEliminacion?: string
+}
+
 export interface Odontologo {
   tratamientos: any
   id: number
@@ -8,5 +18,15 @@ export interface Odontologo {
   password: string
   telefono: string
   direccion: string
-  especialidad: string
+  especialidad: Especialidad
+  imagen?: string
+  rol_id?: number
+  fechaCreacion?: string
+  fechaModificacion?: string
+  rol?: {
+    id: number
+    nombre: string
+    fechaCreacion: string
+    fechaModificacion: string
+  }
 }
