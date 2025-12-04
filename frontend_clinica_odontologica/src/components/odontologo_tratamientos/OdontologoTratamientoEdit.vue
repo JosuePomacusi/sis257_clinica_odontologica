@@ -15,7 +15,7 @@ const props = defineProps({
   mostrar: Boolean,
   relacion: {
     type: Object as () => Odontologo_tratamiento,
-    default: () => ({ id: 0, odontologo_id: 0, tratamiento_id: 0 }),
+    default: () => ({ id: 0, odontologoId: 0, tratamientoId: 0 }),
   },
   modoEdicion: Boolean,
 })
@@ -37,8 +37,8 @@ const tratamientos = ref<Tratamiento[]>([])
 // Relación editable
 const relacion = ref({
   id: props.relacion.id,
-  odontologo_id: props.relacion.odontologo_id,
-  tratamiento_id: props.relacion.tratamiento_id,
+  odontologoId: props.relacion.odontologoId,
+  tratamientoId: props.relacion.tratamientoId,
 })
 
 // Actualizar `relacion` cuando cambie `props.relacion`
@@ -63,15 +63,15 @@ async function cargarDatos() {
 // Guardar cambios
 async function handleEditSave() {
   try {
-    if (!relacion.value.odontologo_id || !relacion.value.tratamiento_id) {
+    if (!relacion.value.odontologoId || !relacion.value.tratamientoId) {
       toast.add({ severity: 'warn', summary: 'Error', detail: 'Debe seleccionar un odontólogo y un tratamiento', life: 3000 });
       return
     }
 
     // Crear el cuerpo con el id de la relación y el nuevo servicio
     const body = {
-      odontologoId: relacion.value.odontologo_id, // Este no cambia
-      tratamientoId: relacion.value.tratamiento_id, // Este sí cambia
+      odontologoId: relacion.value.odontologoId, // Este no cambia
+      tratamientoId: relacion.value.tratamientoId, // Este sí cambia
     }
 
     // Enviar el PATCH con el ID de la relación
@@ -83,7 +83,7 @@ async function handleEditSave() {
   } catch (error: any) {
     console.error(error)
     toast.add({ severity: 'error', summary: 'Error', detail: 'Error desconocido', life: 3000 });
-    
+
   }
 }
 
@@ -110,7 +110,7 @@ onMounted(() => {
           Odontólogo
         </label>
         <Dropdown
-          v-model="relacion.odontologo_id"
+          v-model="relacion.odontologoId"
           :options="odontologos"
           :disabled="modoEdicion"
           option-label="nombre"
@@ -127,7 +127,7 @@ onMounted(() => {
           Tratamiento
         </label>
         <Dropdown
-          v-model="relacion.tratamiento_id"
+          v-model="relacion.tratamientoId"
           :options="tratamientos"
           option-label="nombre"
           option-value="id"
@@ -145,11 +145,11 @@ onMounted(() => {
           class="btn-cancel"
           @click="dialogVisible = false"
         />
-        <Button 
-          label="Guardar" 
-          icon="pi pi-check" 
+        <Button
+          label="Guardar"
+          icon="pi pi-check"
           class="btn-save"
-          @click="handleEditSave" 
+          @click="handleEditSave"
         />
       </div>
     </div>

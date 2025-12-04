@@ -1,0 +1,56 @@
+networks:
+  net-sis257:
+    name: net-sis257
+    driver: bridge
+
+services:
+  db-sis257:
+    image: postgres
+    container_name: db-sis257
+    restart: always
+    ports:
+      - "5434:5432"
+    networks:
+      - net-sis257
+    environment:
+      POSTGRES_DB: sis257_clinica_odontologica
+      POSTGRES_USER: usr_clinica_dental
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./pgdata:/var/lib/postgresql/18/data
+
+  backend-sis257:
+    depends_on:
+      - db-sis257
+    image: be-sis257
+    container_name: api-sis257
+    restart: unless-stopped
+    build:
+      context: ./backend_clinica_odontologica
+    ports:
+      - 3000:3000
+    networks:
+      - net-sis257
+    environment:
+      DB_HOST: db-sis257
+    volumes:
+      - ./backend_clinica_odontologica:/usr/src/app
+      - /usr/src/app/node_modules/
+
+  frontend-sis257:
+    depends_on:
+        - backend-sis257
+    image: fe-sis257
+    container_name: app-sis257
+    restart: unless-stopped
+    build:
+      context: ./frontend_clinica_odontologica
+      dockerfile: Dockerfile
+    ports:
+      - 85:85
+    networks:
+      - net-sis257
+    environment:
+      VITE_BASE_URL_ENDPOINT: backend-sis257
+    volumes:
+      - /usr/src/app/node_modules/
