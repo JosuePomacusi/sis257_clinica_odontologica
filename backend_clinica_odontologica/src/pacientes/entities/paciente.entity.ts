@@ -14,6 +14,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { HistorialMedico } from 'src/historial-medico/entities/historial-medico.entity';
 
 @Entity('pacientes')
 export class Paciente {
@@ -57,8 +58,8 @@ export class Paciente {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password) {
-      // Solo genera el hash si la contraseña está presente
+    if (this.password && !this.password.startsWith('$2b$')) {
+      // Solo genera el hash si la contraseña está presente y no está hasheada
       const salt = await bcrypt.genSalt();
       this.password = await bcrypt.hash(this.password, salt);
     }
@@ -75,4 +76,6 @@ export class Paciente {
 
   @OneToMany(() => Cita, cita => cita.paciente)
   citas: Cita[];
+  @OneToMany(() => HistorialMedico, historial => historial.paciente)
+  historial: HistorialMedico[];
 }

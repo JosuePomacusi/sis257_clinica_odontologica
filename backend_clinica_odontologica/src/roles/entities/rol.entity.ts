@@ -15,8 +15,8 @@ export class Rol {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
-  @Column('varchar', { length: 15 })
-  nombre_rol: string;
+  @Column('varchar', { length: 25 })
+  nombre: string;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
