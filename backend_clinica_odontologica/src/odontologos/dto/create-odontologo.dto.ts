@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsString, MaxLength, IsOptional, IsInt } from 'class-validator';
 
 export class CreateOdontologoDto {
   @ApiProperty()
@@ -43,7 +43,7 @@ export class CreateOdontologoDto {
   @MaxLength(250, {
     message: 'El campo password debe tener un máximo de 50 caracteres',
   })
-  readonly password?: string;
+  readonly password: string;
 
   @ApiProperty()
   @IsNotEmpty({ message: 'El campo telefono es obligatorio' })
@@ -61,11 +61,14 @@ export class CreateOdontologoDto {
   })
   readonly direccion: string;
 
-  @ApiProperty()
-  @IsNotEmpty({ message: 'El campo especialidad es obligatorio' })
-  @IsString({ message: 'El campo especialidad debe ser un string o cadena' })
-  @MaxLength(50, {
-    message: 'El campo especialidad debe tener un máximo de 50 caracteres',
-  })
-  readonly especialidad: string;
+  @ApiProperty({ description: 'ID de la especialidad asociada' })
+  @IsNotEmpty({ message: 'El campo especialidadId es obligatorio' })
+  @IsInt({ message: 'El campo especialidadId debe ser un número entero' })
+  readonly especialidadId: number;
+
+  @ApiPropertyOptional({ description: 'URL o path de la imagen de perfil del odontólogo' })
+  @IsOptional()
+  @IsString({ message: 'El campo imagen debe ser un string' })
+  @MaxLength(255, { message: 'El campo imagen debe tener un máximo de 255 caracteres' })
+  readonly imagen?: string;
 }

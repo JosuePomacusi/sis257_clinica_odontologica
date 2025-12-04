@@ -14,32 +14,37 @@ import { OdontologosService } from './odontologos.service';
 import { CreateOdontologoDto } from './dto/create-odontologo.dto';
 import { UpdateOdontologoDto } from './dto/update-odontologo.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 //@ApiBearerAuth()
-@ApiTags('Odontologos')
+@ApiTags('Odontólogos')
 @Controller('odontologos')
 export class OdontologosController {
   constructor(private readonly odontologosService: OdontologosService) {}
 
   @Get('mi-perfil')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async findAuthenticatedUser(@Req() req: any) {
-    const userId = req.user.id; 
-    return await this.odontologosService.findAuthenticatedUser(userId); 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id; // Extrae el ID del usuario autenticado desde el token
+    return await this.odontologosService.findAuthenticatedUser(Number(userId)); // Retorna el odontologo autenticado
   }
 
   @Post('cambiar-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async cambiarPassword(
-    @Req() req: any, 
+    @Req() req: any,
     @Body() body: { passwordActual: string; nuevaPassword: string },
   ) {
-    const userId = req.user.id; 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id;
     const { passwordActual, nuevaPassword } = body;
 
- 
     if (!passwordActual || !nuevaPassword) {
       throw new BadRequestException('Ambas contraseñas son obligatorias.');
     }
-
 
     return await this.odontologosService.cambiarPassword(userId, passwordActual, nuevaPassword);
   }
@@ -49,7 +54,7 @@ export class OdontologosController {
     return this.odontologosService.create(createOdontologoDto);
   }
 
-
+  // Método público: No tiene @ApiBearerAuth ni @UseGuards
   @Get()
   findAll() {
     return this.odontologosService.findAll();

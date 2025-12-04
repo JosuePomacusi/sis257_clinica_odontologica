@@ -8,6 +8,7 @@ import { CreateOdontologoDto } from './dto/create-odontologo.dto';
 import { UpdateOdontologoDto } from './dto/update-odontologo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Odontologo } from './entities/odontologo.entity';
+import { Especialidad } from 'src/especialidades/entities/especialidad.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -15,35 +16,81 @@ export class OdontologosService {
   constructor(
     @InjectRepository(Odontologo)
     private odontologosRepository: Repository<Odontologo>,
+    @InjectRepository(Especialidad)
+    private especialidadesRepository: Repository<Especialidad>,
   ) {}
 
   async create(createOdontologoDto: CreateOdontologoDto): Promise<Odontologo> {
-    const buscarRepetidos = await this.odontologosRepository.findOne({
-      where: { email: createOdontologoDto.email },
-    });
+    // Validar email duplicado (case-insensitive)
+    const emailRepetido = await this.odontologosRepository
+      .createQueryBuilder('odontologo')
+      .where('LOWER(odontologo.email) = LOWER(:email)', {
+        email: createOdontologoDto.email.trim(),
+      })
+      .andWhere('odontologo.fecha_eliminacion IS NULL')
+      .getOne();
 
-    if (buscarRepetidos) throw new ConflictException('El odontólogo con ese email ya existe');
+    if (emailRepetido) throw new ConflictException('El odontólogo con ese email ya existe');
+
+    // Validar nombre y apellidos duplicados (case-insensitive)
+    const nombreRepetido = await this.odontologosRepository
+      .createQueryBuilder('odontologo')
+      .where('LOWER(TRIM(odontologo.nombre)) = LOWER(TRIM(:nombre))', {
+        nombre: createOdontologoDto.nombre,
+      })
+      .andWhere('LOWER(TRIM(odontologo.primer_apellido)) = LOWER(TRIM(:primerApellido))', {
+        primerApellido: createOdontologoDto.primerApellido,
+      })
+      .andWhere('LOWER(TRIM(odontologo.segundo_apellido)) = LOWER(TRIM(:segundoApellido))', {
+        segundoApellido: createOdontologoDto.segundoApellido,
+      })
+      .andWhere('odontologo.fecha_eliminacion IS NULL')
+      .getOne();
+
+    if (nombreRepetido) {
+      throw new ConflictException('Ya existe un odontólogo con ese nombre y apellidos');
+    }
 
     const odontologo = new Odontologo();
     odontologo.nombre = createOdontologoDto.nombre.trim();
     odontologo.primerApellido = createOdontologoDto.primerApellido.trim();
     odontologo.segundoApellido = createOdontologoDto.segundoApellido.trim();
     odontologo.email = createOdontologoDto.email.trim();
-    odontologo.password = process.env.DEFAULT_PASSWORD!;
+    // Usar trim() para evitar espacios en blanco heredados desde .env
+    odontologo.password = createOdontologoDto.password.trim();
     odontologo.telefono = createOdontologoDto.telefono.trim();
     odontologo.direccion = createOdontologoDto.direccion.trim();
-    odontologo.especialidad = createOdontologoDto.especialidad.trim();
+    // Asignar imagen si se envía
+    if ((createOdontologoDto as any).imagen) {
+      odontologo.imagen = (createOdontologoDto as any).imagen.trim();
+    }
+
+    // Resolver la especialidad por ID y asignarla como relación
+    const especialidadId = (createOdontologoDto as any).especialidadId;
+    if (especialidadId) {
+      const especialidad = await this.especialidadesRepository.findOneBy({ id: especialidadId });
+      if (!especialidad) {
+        throw new NotFoundException('La especialidad indicada no existe');
+      }
+      odontologo.especialidad = especialidad;
+    }
 
     return this.odontologosRepository.save(odontologo);
   }
 
   async findAll(): Promise<Odontologo[]> {
-    return this.odontologosRepository.find({ relations: ['rol'] });
+    return this.odontologosRepository.find({
+      relations: ['rol', 'especialidad'],
+      order: { id: 'DESC' },
+    });
   }
 
   async findOne(id: number): Promise<Odontologo> {
-    const odontologo = await this.odontologosRepository.findOneBy({ id });
-    if (!odontologo) throw new ConflictException('El odontologo no existe');
+    const odontologo = await this.odontologosRepository.findOne({
+      where: { id },
+      relations: ['rol', 'especialidad'],
+    });
+    if (!odontologo) throw new NotFoundException('El odontologo no existe');
 
     return odontologo;
   }
@@ -55,7 +102,74 @@ export class OdontologosService {
 
   async update(id: number, updateOdontologoDto: UpdateOdontologoDto): Promise<Odontologo> {
     const Odontologo = await this.findOne(id);
+
+    // Si se actualiza el email, validar que no esté duplicado
+    if (updateOdontologoDto.email) {
+      const emailRepetido = await this.odontologosRepository
+        .createQueryBuilder('odontologo')
+        .where('LOWER(odontologo.email) = LOWER(:email)', {
+          email: updateOdontologoDto.email.trim(),
+        })
+        .andWhere('odontologo.id != :id', { id })
+        .andWhere('odontologo.fecha_eliminacion IS NULL')
+        .getOne();
+
+      if (emailRepetido) {
+        throw new ConflictException('El odontólogo con ese email ya existe');
+      }
+    }
+
+    // Si se actualizan nombre y apellidos, validar que no estén duplicados
+    // Solo validar si al menos uno de los campos realmente cambió
+    const nombreCambio =
+      updateOdontologoDto.nombre &&
+      updateOdontologoDto.nombre.trim().toLowerCase() !== Odontologo.nombre.trim().toLowerCase();
+    const primerApellidoCambio =
+      updateOdontologoDto.primerApellido &&
+      updateOdontologoDto.primerApellido.trim().toLowerCase() !==
+        Odontologo.primerApellido.trim().toLowerCase();
+    const segundoApellidoCambio =
+      updateOdontologoDto.segundoApellido &&
+      updateOdontologoDto.segundoApellido.trim().toLowerCase() !==
+        Odontologo.segundoApellido.trim().toLowerCase();
+
+    if (nombreCambio || primerApellidoCambio || segundoApellidoCambio) {
+      const nombreRepetido = await this.odontologosRepository
+        .createQueryBuilder('odontologo')
+        .where('LOWER(TRIM(odontologo.nombre)) = LOWER(TRIM(:nombre))', {
+          nombre: updateOdontologoDto.nombre || Odontologo.nombre,
+        })
+        .andWhere('LOWER(TRIM(odontologo.primer_apellido)) = LOWER(TRIM(:primerApellido))', {
+          primerApellido: updateOdontologoDto.primerApellido || Odontologo.primerApellido,
+        })
+        .andWhere('LOWER(TRIM(odontologo.segundo_apellido)) = LOWER(TRIM(:segundoApellido))', {
+          segundoApellido: updateOdontologoDto.segundoApellido || Odontologo.segundoApellido,
+        })
+        .andWhere('odontologo.id != :id', { id })
+        .andWhere('odontologo.fecha_eliminacion IS NULL')
+        .getOne();
+
+      if (nombreRepetido) {
+        throw new ConflictException('Ya existe un odontólogo con ese nombre y apellidos');
+      }
+    }
+
+    // Aplicar cambios simples
     const odontologoUpdate = Object.assign(Odontologo, updateOdontologoDto);
+
+    // Si se envía imagen, asignarla (puede venir en el DTO)
+    if ((updateOdontologoDto as any).imagen !== undefined) {
+      odontologoUpdate.imagen = (updateOdontologoDto as any).imagen;
+    }
+
+    // Si se envía especialidadId, resolver la entidad y asignarla
+    const especialidadId = (updateOdontologoDto as any).especialidadId;
+    if (especialidadId !== undefined) {
+      const especialidad = await this.especialidadesRepository.findOneBy({ id: especialidadId });
+      if (!especialidad) throw new NotFoundException('La especialidad indicada no existe');
+      odontologoUpdate.especialidad = especialidad;
+    }
+
     return this.odontologosRepository.save(odontologoUpdate);
   }
 
