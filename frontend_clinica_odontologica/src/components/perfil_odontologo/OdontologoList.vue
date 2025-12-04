@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import type { Odontologo } from '../../models/Odontologo' // Importamos el modelo
 import { ref, onMounted } from 'vue'
@@ -57,8 +56,6 @@ async function eliminarCuenta() {
     }
   }
 }
-
-
 
 // Inicializar los datos al montar el componente
 onMounted(() => {
@@ -154,7 +151,6 @@ onMounted(() => {
       </div>
 
       <!-- Botón para abrir el diálogo de edición -->
-
       <Button
         label="Editar"
         icon="pi pi-pencil"

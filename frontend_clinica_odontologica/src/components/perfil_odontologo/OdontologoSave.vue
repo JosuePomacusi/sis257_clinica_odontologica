@@ -12,7 +12,8 @@ const props = defineProps({
     type: Object as () => Odontologo,
     default: () => ({} as Odontologo),
   },
-
+  modoEdicion: {
+    type: Boolean,
     default: true, // Por defecto está en modo edición
   },
 });
