@@ -1,293 +1,354 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import http from '../../plugins/axios'
-import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
-import type { Odontologo_tratamiento as Odontologo_tratamiento } from '../../models/Odontologo_tratamiento'
-import type { Odontologo } from '../../models/Odontologo'
-import type { Tratamiento } from '../../models/Tratamientos'
 import Dialog from 'primevue/dialog'
+import InputText from 'primevue/inputtext' // Agregado para el campo de búsqueda
+import { useAuthStore } from '@/stores'
 import { useToast } from 'primevue/usetoast'
+import { useTratamientos } from '@/composables/useTratamientos'
+import type { Tratamiento } from '@/models/Tratamientos'
 
+// --- Inicialización y Stores ---
+const authStore = useAuthStore()
 const toast = useToast()
+const { cargarTratamientosDisponibles } = useTratamientos() // Composable para recargar el listado de tratamientos disponibles
+const odontologoLogueado = computed(() => authStore.user)
 
-const props = defineProps({
-  mostrar: Boolean,
-  relacion: {
-    type: Object as () => Odontologo_tratamiento,
-    default: () => ({ id: 0, odontologo_id: 0, tratamiento_id: 0 }),
-  },
-  modoEdicion: Boolean,
-})
-
-const emit = defineEmits(['guardar', 'close'])
-
-// Controlar la visibilidad del diálogo
-const dialogVisible = computed({
-  get: () => props.mostrar,
-  set: value => {
-    if (!value) emit('close')
-  },
-})
-
-// Datos de odontólogos y servicios
-const odontologos = ref<Odontologo[]>([])
+// --- Estado Reactivo ---
 const tratamientos = ref<Tratamiento[]>([])
+const nombreBusqueda = ref('')
+const isDeleting = ref(false) // Estado para controlar la eliminación asíncrona
+const isLoading = ref(false) // Estado para controlar la carga de la lista
+const tratamientoIdToDelete = ref<number | null>(null) // Renombrado para claridad
+const mostrarConfirmDialog = ref<boolean>(false)
 
-// Relación editable
-const relacion = ref({
-  id: props.relacion.id,
-  odontologo_id: props.relacion.odontologo_id,
-  tratamiento_id: props.relacion.tratamiento_id,
-})
+// --- Funciones de Lógica ---
 
-// Actualizar `relacion` cuando cambie `props.relacion`
-watch(
-  () => props.relacion,
-  newRelacion => {
-    relacion.value = { ...newRelacion }
-  },
-  { immediate: true },
-)
-
-// Cargar odontólogos y servicios
-async function cargarDatos() {
-  const [odontologoResponse, tratamientoResponse] = await Promise.all([
-    http.get('odontologos'),
-    http.get('tratamientos'),
-  ])
-  odontologos.value = odontologoResponse.data
-  tratamientos.value = tratamientoResponse.data
-}
-
-// Guardar cambios
-async function handleEditSave() {
+/**
+ * Obtiene la lista de tratamientos asignados al odontólogo logueado.
+ */
+const obtenerLista = async () => {
+  isLoading.value = true
   try {
-    if (!relacion.value.odontologo_id || !relacion.value.tratamiento_id) {
-      toast.add({ severity: 'warn', summary: 'Error', detail: 'Debe seleccionar un odontólogo y un tratamiento', life: 3000 });
-      return
-    }
-
-    // Crear el cuerpo con el id de la relación y el nuevo servicio
-    const body = {
-      odontologoId: relacion.value.odontologo_id, // Este no cambia
-      tratamientoId: relacion.value.tratamiento_id, // Este sí cambia
-    }
-
-    // Enviar el PATCH con el ID de la relación
-    await http.patch(`odontologos_tratamientos/${relacion.value.id}`, body)
-
-    // Emitir evento para recargar la lista
-    emit('guardar')
-    dialogVisible.value = false
-  } catch (error: any) {
-    console.error(error)
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Error desconocido', life: 3000 });
-    
+    // Nota: Se asume que esta API devuelve solo la información del Tratamiento
+    const response = await http.get('odontologos_tratamientos/mis-tratamientos')
+    tratamientos.value = response.data || []
+  } catch (error) {
+    console.error('Error obteniendo los datos:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error de Carga',
+      detail: 'No se pudieron cargar sus tratamientos asignados.',
+      life: 5000,
+    })
+  } finally {
+    isLoading.value = false
   }
 }
 
+// Computed para filtrar tratamientos por nombre
+const tratamientosFiltrados = computed(() => {
+  const busqueda = nombreBusqueda.value.toLowerCase().trim()
+  
+  if (!busqueda) {
+    return tratamientos.value
+  }
+
+  return tratamientos.value.filter(tratamiento =>
+    tratamiento.nombre.toLowerCase().includes(busqueda),
+  )
+})
+
+/**
+ * Muestra el diálogo de confirmación de eliminación.
+ * @param tratamientoId - ID del tratamiento a eliminar.
+ */
+function mostrarEliminarConfirm(tratamientoId: number) {
+  tratamientoIdToDelete.value = tratamientoId
+  mostrarConfirmDialog.value = true
+}
+
+/**
+ * Ejecuta la eliminación del tratamiento asignado.
+ */
+async function eliminarTratamiento() {
+  if (!odontologoLogueado.value?.id) {
+    console.error('Error: Odontólogo no autenticado o ID no disponible.')
+    toast.add({
+      severity: 'error',
+      summary: 'Error de Autenticación',
+      detail: 'No se pudo verificar su identidad para realizar la eliminación.',
+      life: 5000,
+    })
+    mostrarConfirmDialog.value = false
+    return
+  }
+
+  const idOdontologo = odontologoLogueado.value.id
+  const idTratamiento = tratamientoIdToDelete.value
+
+  if (idTratamiento === null) return // Evitar eliminación si el ID es nulo
+
+  isDeleting.value = true
+  
+  try {
+    // La API elimina la relación (tabla intermedia) entre el odontólogo y el tratamiento
+    await http.delete(
+      `odontologos_tratamientos/eliminar-relacion/${idOdontologo}/${idTratamiento}`,
+    )
+    
+    // --- Post-eliminación ---
+    toast.add({
+      severity: 'success',
+      summary: 'Eliminación Exitosa',
+      detail: 'El tratamiento ha sido desasignado de su lista.',
+      life: 3000,
+    })
+    
+    // 1. Recargar la lista de tratamientos disponibles (en el composable)
+    await cargarTratamientosDisponibles()
+
+    // 2. Actualizar la lista local de tratamientos asignados
+    await obtenerLista() 
+    
+    // 3. Emitir evento global (si es necesario)
+    window.dispatchEvent(new CustomEvent('tratamientoEliminado'))
+
+    mostrarConfirmDialog.value = false
+  } catch (error) {
+    console.error('Error al eliminar:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Hubo un problema al desasignar el tratamiento.',
+      life: 5000,
+    })
+  } finally {
+    isDeleting.value = false
+    tratamientoIdToDelete.value = null
+  }
+}
+
+// Llamar obtenerLista al montar el componente
 onMounted(() => {
-  cargarDatos()
+  obtenerLista()
+})
+
+// Exponer la función para que el componente padre pueda forzar la recarga
+defineExpose({
+  obtenerLista,
 })
 </script>
 
 <template>
-  <Dialog
-    v-model:visible="dialogVisible"
-    :header="props.modoEdicion ? 'Editar Relación' : 'Crear Nueva Relación'"
-    :modal="true"
-    :closable="true"
-    :draggable="false"
-    class="custom-dialog"
-    style="width: 550px; max-width: 95vw"
-  >
-    <div class="form-container">
-      <!-- Odontólogo -->
-      <div class="form-field">
-        <label class="form-label">
-          <i class="pi pi-user"></i>
-          Odontólogo
-        </label>
-        <Dropdown
-          v-model="relacion.odontologo_id"
-          :options="odontologos"
-          :disabled="modoEdicion"
-          option-label="nombre"
-          option-value="id"
-          placeholder="Seleccione un odontólogo"
-          class="form-dropdown"
-        />
-      </div>
+  <div class="contenedor-lista">
+    <Toast />
+    
+    <InputText
+      v-model="nombreBusqueda"
+      placeholder="Buscar tratamiento por nombre"
+      class="p-inputtext-lg busqueda-input"
+    />
 
-      <!-- Tratamiento -->
-      <div class="form-field">
-        <label class="form-label">
-          <i class="pi pi-heart"></i>
-          Tratamiento
-        </label>
-        <Dropdown
-          v-model="relacion.tratamiento_id"
-          :options="tratamientos"
-          option-label="nombre"
-          option-value="id"
-          placeholder="Seleccione un tratamiento"
-          class="form-dropdown"
-        />
-      </div>
+    <div v-if="isLoading" class="estado-mensaje">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #667eea;"></i>
+      <p>Cargando sus tratamientos...</p>
+    </div>
+    
+    <div v-else-if="tratamientosFiltrados.length === 0" class="estado-mensaje">
+      <i class="pi pi-info-circle" style="font-size: 2rem; color: #10b981;"></i>
+      <p v-if="nombreBusqueda">No se encontraron tratamientos que coincidan con la búsqueda.</p>
+      <p v-else>Usted no tiene tratamientos asignados. Asigne tratamientos para comenzar.</p>
+    </div>
 
-      <!-- Botones -->
-      <div class="form-actions">
-        <Button
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="secondary"
-          class="btn-cancel"
-          @click="dialogVisible = false"
-        />
-        <Button 
-          label="Guardar" 
-          icon="pi pi-check" 
-          class="btn-save"
-          @click="handleEditSave" 
-        />
+    <div v-else class="tarjetas-grid">
+      <div
+        v-for="tratamiento in tratamientosFiltrados"
+        :key="tratamiento.id"
+        class="tarjeta-tratamiento"
+      >
+        <h3 class="tratamiento-nombre">{{ tratamiento.nombre }}</h3>
+        <p><strong>Descripción:</strong> {{ tratamiento.descripcion || 'N/A' }}</p>
+        <p><strong>Precio:</strong> {{ tratamiento.precio?.toFixed(2) }} Bs.</p>
+        <p><strong>Duración:</strong> {{ tratamiento.duracion }} min</p>
+
+        <div class="acciones">
+          <Button
+            icon="pi pi-trash"
+            aria-label="Eliminar"
+            class="p-button-danger boton-eliminar"
+            @click="mostrarEliminarConfirm(tratamiento.id)"
+          />
+        </div>
       </div>
     </div>
-  </Dialog>
+
+    <Dialog
+      v-model:visible="mostrarConfirmDialog"
+      header="Confirmar Desasignación"
+      :style="{ width: '25rem' }"
+      :modal="true"
+      :closable="!isDeleting"
+    >
+      <div class="flex align-items-center gap-3">
+        <i class="pi pi-exclamation-triangle" style="font-size: 1.5rem; color: orange;"></i>
+        <p>¿Estás seguro de que deseas desasignar este tratamiento de tu lista?</p>
+      </div>
+      
+      <div class="flex justify-content-end gap-2 mt-4">
+        <Button
+          type="button"
+          label="Cancelar"
+          severity="secondary"
+          :disabled="isDeleting"
+          @click="mostrarConfirmDialog = false"
+        />
+        <Button 
+          type="button" 
+          :label="isDeleting ? 'Eliminando...' : 'Desasignar'"
+          :icon="isDeleting ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          severity="danger" 
+          :disabled="isDeleting"
+          @click="eliminarTratamiento" 
+        />
+      </div>
+    </Dialog>
+  </div>
 </template>
 
 <style scoped>
-.custom-dialog :deep(.p-dialog-header) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 12px 12px 0 0;
-}
+/* ------------------------------------------- */
+/* --- ESTILOS REFINADOS --- */
+/* ------------------------------------------- */
 
-.custom-dialog :deep(.p-dialog-header-icon) {
-  color: white;
-}
-
-.custom-dialog :deep(.p-dialog-header-icon):hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.custom-dialog :deep(.p-dialog-content) {
+.contenedor-lista {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: #f7f9fc;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
 }
 
-.form-container {
-  display: flex;
-  flex-direction: column;
+/* Campo de búsqueda */
+.busqueda-input {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe; /* Color de acento sutil */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.busqueda-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 5px rgba(102, 126, 234, 0.4);
+}
+
+/* Grid para las tarjetas */
+.tarjetas-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(300px, 1fr)
+  );
   gap: 1.5rem;
 }
 
-.form-field {
+/* Tarjeta de servicio */
+.tarjeta-tratamiento {
+  background-color: #ffffff;
+  border-left: 5px solid #667eea; /* Borde de color para distinción */
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: transform 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
-.form-label {
-  font-weight: 600;
-  color: #2d3748;
+.tarjeta-tratamiento:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Título de la tarjeta */
+.tratamiento-nombre {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.4rem;
+  color: #2c3e50;
+  font-weight: 700;
+  border-bottom: 1px dashed #e3e3e3;
+  padding-bottom: 0.5rem;
+}
+
+/* Información del servicio */
+.tarjeta-tratamiento p {
+  margin: 0.3rem 0;
+  color: #555;
   font-size: 0.95rem;
+}
+
+/* Botones de acción */
+.acciones {
+  margin-top: 1.2rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid #f0f0f0;
   display: flex;
+  justify-content: flex-end; /* Solo un botón (Eliminar) */
+}
+
+.boton-eliminar {
+  /* Usamos la clase p-button-danger de PrimeVue */
+  background-color: #ef4444;
+  border-color: #ef4444;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
 }
 
-.form-label i {
-  color: #667eea;
-  font-size: 1rem;
+.boton-eliminar:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
 }
 
-.form-dropdown {
-  width: 100%;
-}
-
-.form-dropdown :deep(.p-dropdown) {
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-.form-dropdown :deep(.p-dropdown:hover) {
-  border-color: #cbd5e0;
-}
-
-.form-dropdown :deep(.p-dropdown:focus) {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+/* Mensajes de Estado (Carga, Vacío) */
+.estado-mensaje {
+  text-align: center;
+  padding: 3rem;
+  background-color: #ffffff;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   margin-top: 1rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid #e2e8f0;
 }
 
-.btn-cancel {
-  background-color: #e2e8f0 !important;
-  color: #4a5568 !important;
-  border: none !important;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.estado-mensaje p {
+  font-size: 1.1rem;
+  color: #4b5563;
+  margin-top: 1rem;
 }
 
-.btn-cancel:hover {
-  background-color: #cbd5e0 !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Clases para el diálogo de confirmación */
+.flex {
+  display: flex;
 }
-
-.btn-save {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  border: none !important;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.align-items-center {
+  align-items: center;
 }
-
-.btn-save:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.gap-3 {
+  gap: 1rem;
 }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .custom-dialog :deep(.p-dialog-content) {
-    padding: 1.5rem;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .btn-cancel,
-  .btn-save {
-    width: 100%;
-  }
+.justify-content-end {
+  justify-content: flex-end;
 }
-
-/* Animaciones */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.form-container {
-  animation: slideIn 0.3s ease-out;
+.mt-4 {
+  margin-top: 1rem;
 }
 </style>
