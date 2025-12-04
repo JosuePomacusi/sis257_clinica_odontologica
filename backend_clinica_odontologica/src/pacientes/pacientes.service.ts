@@ -18,11 +18,43 @@ export class PacientesService {
   ) {}
 
   async create(createPacienteDto: CreatePacienteDto): Promise<Paciente> {
-    const buscarRepetidos = await this.pacientesRepository.findOne({
-      where: [{ email: createPacienteDto.email }],
-    });
-    if (buscarRepetidos) {
+    // Validar email duplicado (case-insensitive)
+    const emailRepetido = await this.pacientesRepository
+      .createQueryBuilder('paciente')
+      .where('LOWER(paciente.email) = LOWER(:email)', {
+        email: createPacienteDto.email.trim(),
+      })
+      .andWhere('paciente.fecha_eliminacion IS NULL')
+      .getOne();
+
+    if (emailRepetido) {
       throw new ConflictException('El email ya existe');
+    }
+
+    // Validar nombre y apellidos duplicados (case-insensitive)
+    const nombreRepetido = await this.pacientesRepository
+      .createQueryBuilder('paciente')
+      .where('LOWER(TRIM(paciente.nombre)) = LOWER(TRIM(:nombre))', {
+        nombre: createPacienteDto.nombre,
+      })
+      .andWhere('LOWER(TRIM(paciente.primer_apellido)) = LOWER(TRIM(:primerApellido))', {
+        primerApellido: createPacienteDto.primerApellido,
+      })
+      .andWhere('LOWER(TRIM(paciente.segundo_apellido)) = LOWER(TRIM(:segundoApellido))', {
+        segundoApellido: createPacienteDto.segundoApellido,
+      })
+      .andWhere('paciente.fecha_eliminacion IS NULL')
+      .getOne();
+
+    console.log('Buscando duplicado con:', {
+      nombre: createPacienteDto.nombre,
+      primerApellido: createPacienteDto.primerApellido,
+      segundoApellido: createPacienteDto.segundoApellido,
+      encontrado: !!nombreRepetido,
+    });
+
+    if (nombreRepetido) {
+      throw new ConflictException('Ya existe un paciente con ese nombre y apellidos');
     }
 
     const paciente = new Paciente();
@@ -30,7 +62,8 @@ export class PacientesService {
     paciente.primerApellido = createPacienteDto.primerApellido.trim();
     paciente.segundoApellido = createPacienteDto.segundoApellido.trim();
     paciente.email = createPacienteDto.email.trim();
-    paciente.password = process.env.DEFAULT_PASSWORD!;
+    // Usar trim() para evitar espacios en blanco heredados desde .env
+    paciente.password = process.env.DEFAULT_PASSWORD?.trim() ?? '';
     paciente.telefono = createPacienteDto.telefono.trim();
     paciente.direccion = createPacienteDto.direccion.trim();
 
@@ -38,7 +71,10 @@ export class PacientesService {
   }
 
   async findAll(): Promise<Paciente[]> {
-    return this.pacientesRepository.find({ relations: ['rol'] });
+    return this.pacientesRepository.find({
+      relations: ['rol'],
+      order: { id: 'DESC' },
+    });
   }
 
   async findOne(id: number): Promise<Paciente> {
@@ -56,6 +92,49 @@ export class PacientesService {
 
   async update(id: number, updatePacienteDto: UpdatePacienteDto): Promise<Paciente> {
     const Paciente = await this.findOne(id);
+
+    // Si se actualiza el email, validar que no esté duplicado
+    if (updatePacienteDto.email) {
+      const emailRepetido = await this.pacientesRepository
+        .createQueryBuilder('paciente')
+        .where('LOWER(paciente.email) = LOWER(:email)', {
+          email: updatePacienteDto.email.trim(),
+        })
+        .andWhere('paciente.id != :id', { id })
+        .andWhere('paciente.fecha_eliminacion IS NULL')
+        .getOne();
+
+      if (emailRepetido) {
+        throw new ConflictException('El email ya existe');
+      }
+    }
+
+    // Si se actualizan nombre y apellidos, validar que no estén duplicados
+    if (
+      updatePacienteDto.nombre ||
+      updatePacienteDto.primerApellido ||
+      updatePacienteDto.segundoApellido
+    ) {
+      const nombreRepetido = await this.pacientesRepository
+        .createQueryBuilder('paciente')
+        .where('LOWER(TRIM(paciente.nombre)) = LOWER(TRIM(:nombre))', {
+          nombre: updatePacienteDto.nombre || Paciente.nombre,
+        })
+        .andWhere('LOWER(TRIM(paciente.primer_apellido)) = LOWER(TRIM(:primerApellido))', {
+          primerApellido: updatePacienteDto.primerApellido || Paciente.primerApellido,
+        })
+        .andWhere('LOWER(TRIM(paciente.segundo_apellido)) = LOWER(TRIM(:segundoApellido))', {
+          segundoApellido: updatePacienteDto.segundoApellido || Paciente.segundoApellido,
+        })
+        .andWhere('paciente.id != :id', { id })
+        .andWhere('paciente.fecha_eliminacion IS NULL')
+        .getOne();
+
+      if (nombreRepetido) {
+        throw new ConflictException('Ya existe un paciente con ese nombre y apellidos');
+      }
+    }
+
     const pacienteUpdate = Object.assign(Paciente, updatePacienteDto);
     return this.pacientesRepository.save(pacienteUpdate);
   }
@@ -84,6 +163,7 @@ export class PacientesService {
 
     return emailOk; // Devuelve el cliente con el rol cargado
   }
+
   async cambiarPassword(
     userId: number,
     passwordActual: string,

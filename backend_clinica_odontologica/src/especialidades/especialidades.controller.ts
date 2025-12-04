@@ -5,8 +5,8 @@ import { CreateEspecialidadDto } from './dto/create-especialidad.dto';
 import { UpdateEspecialidadDto } from './dto/update-especialidad.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@ApiTags('Especialidades')
-@UseGuards(JwtAuthGuard)
+//@ApiTags('Especialidades')
+//@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @Controller('especialidades')
 export class EspecialidadesController {

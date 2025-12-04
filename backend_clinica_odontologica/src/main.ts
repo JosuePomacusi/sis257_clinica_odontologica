@@ -28,7 +28,18 @@ async function bootstrap() {
       'API para la gestión de pacientes, odontólogos, tratamientos y citas en la clínica odontológica',
     )
     .setVersion('1.0')
-    .addTag('tratamientos')
+    .addTag('Auth')
+    .addTag('Roles')
+    .addTag('Pacientes')
+    .addTag('Odontólogos')
+    .addTag('Especialidades')
+    .addTag('Tratamientos')
+    .addTag('Citas')
+    .addTag('Horarios')
+    .addTag('Feriados')
+    .addTag('Historiales_Médicos')
+    .addTag('Odontólogo_Tratamientos')
+    .addTag('Configuraciónes')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' })
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);

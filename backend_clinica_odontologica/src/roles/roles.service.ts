@@ -13,16 +13,16 @@ export class RolesService {
   ) {}
 
   async create(createRoleDto: CreateRolDto): Promise<Rol> {
-    const { nombre_rol } = createRoleDto;
+    const { nombre } = createRoleDto;
 
-    if (!nombre_rol || (nombre_rol !== 'odontologo' && nombre_rol !== 'paciente')) {
+    if (!nombre || (nombre !== 'odontologo' && nombre !== 'paciente')) {
       throw new ConflictException(
         'El campo rol es obligatorio y debe ser "odontologo" o "paciente"',
       );
     }
 
     const rol = new Rol();
-    rol.nombre_rol = createRoleDto.nombre_rol.trim();
+    rol.nombre = createRoleDto.nombre.trim();
     return this.rolesRepository.save(rol);
   }
 

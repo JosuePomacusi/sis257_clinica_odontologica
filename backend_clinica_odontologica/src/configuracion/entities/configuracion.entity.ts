@@ -3,21 +3,21 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  PrimaryColumn, // ⬅️ Usamos PrimaryColumn
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('configuracion')
+@Entity('configuraciones')
 export class Configuracion {
   @PrimaryColumn('varchar', { length: 100, nullable: false })
-  clave: string; 
+  clave: string;
 
   @Column('varchar', { length: 255, nullable: false })
-  valor: string; 
+  valor: string;
 
   @Column('varchar', { length: 255, nullable: true })
-  descripcion: string; 
-  
+  descripcion: string;
+
   // --- Auditoría y Soft Delete ---
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;

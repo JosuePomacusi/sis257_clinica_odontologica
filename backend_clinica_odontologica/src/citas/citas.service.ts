@@ -18,11 +18,18 @@ export class CitasService {
   }
 
   findAll(): Promise<Cita[]> {
-    return this.citasRepository.find();
+    // Incluir relaciones y ordenar por id descendente
+    return this.citasRepository.find({
+      relations: ['paciente', 'odontologo', 'tratamiento'],
+      order: { id: 'DESC' },
+    });
   }
 
   async findOne(id: number): Promise<Cita> {
-    const cita = await this.citasRepository.findOne({ where: { id } });
+    const cita = await this.citasRepository.findOne({
+      where: { id },
+      relations: ['paciente', 'odontologo', 'tratamiento'],
+    });
     if (!cita) {
       throw new NotFoundException(`Cita con ID ${id} no encontrada.`);
     }

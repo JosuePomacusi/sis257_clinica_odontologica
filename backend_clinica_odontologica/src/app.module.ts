@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TratamientosModule } from './tratamientos/tratamientos.module';
@@ -8,15 +6,13 @@ import { PacientesModule } from './pacientes/pacientes.module';
 import { OdontologosModule } from './odontologos/odontologos.module';
 import { CitasModule } from './citas/citas.module';
 import { RolesModule } from './roles/roles.module';
-import { OdontologoServiciosModule } from './odontologo_servicios/odontologo_servicios.module';
+import { OdontologoTratamientosModule } from './odontologo_tratamientos/odontologo_tratamientos.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { AuthModule } from './auth/auth.module';
 import { FeriadosModule } from './feriados/feriados.module';
-import { OdontologoTratamientosModule } from './odontologo_tratamientos/odontologo_tratamientos.module';
 import { HistorialMedicoModule } from './historial-medico/historial-medico.module';
 import { ConfiguracionModule } from './configuracion/configuracion.module';
 import { EspecialidadesModule } from './especialidades/especialidades.module';
-import { FeriadosModule } from './feriados/feriados.module';
 
 @Module({
   imports: [
@@ -36,17 +32,16 @@ import { FeriadosModule } from './feriados/feriados.module';
     TratamientosModule,
     PacientesModule,
     OdontologosModule,
+    EspecialidadesModule,
     RolesModule,
-    OdontologoServiciosModule,
+    OdontologoTratamientosModule,
     HorariosModule,
     AuthModule,
     FeriadosModule,
     HistorialMedicoModule,
     ConfiguracionModule,
-    EspecialidadesModule,
-    OdontologoTratamientosModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

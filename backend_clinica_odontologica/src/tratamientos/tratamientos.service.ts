@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateTratamientoDto } from './dto/create-tratamiento.dto';
 import { UpdateTratamientoDto } from './dto/update-tratamiento.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,7 +31,7 @@ export class TratamientosService {
   }
 
   async findAll(): Promise<Tratamiento[]> {
-    return this.tratamientosRepository.find();
+    return this.tratamientosRepository.find({ order: { id: 'DESC' } });
   }
 
   async findOne(id: number): Promise<Tratamiento> {
@@ -42,9 +42,10 @@ export class TratamientosService {
   }
 
   async findByOdontologo(idOdontologo: number): Promise<Tratamiento[]> {
+    // Corregir alias: usar 'tratamiento' como alias raíz y navegar su relación 'odontologo_servicios'
     return this.tratamientosRepository
       .createQueryBuilder('tratamiento')
-      .innerJoin('servicio.odontologo_servicios', 'odontologo_servicios')
+      .innerJoin('tratamiento.odontologo_servicios', 'odontologo_servicios')
       .innerJoin('odontologo_servicios.odontologo', 'odontologo')
       .where('odontologo.id = :idOdontologo', { idOdontologo })
       .getMany();
