@@ -19,9 +19,9 @@ export class CreateCitaDto {
   readonly fechaHoraFin: Date;
 
   @ApiProperty()
-  @IsDefined({ message: 'El campo paciente_id es obligatorio' })
-  @IsNumber({}, { message: 'El campo paciente_id debe ser de tipo number' })
-  readonly pacienteId: number;
+  @IsDefined({ message: 'El campo cliente_id es obligatorio' })
+  @IsNumber({}, { message: 'El campo cliente_id debe ser de tipo number' })
+  readonly clienteId: number;
 
   @ApiProperty()
   @IsDefined({ message: 'El campo odontologo_id es obligatorio' })
@@ -29,7 +29,7 @@ export class CreateCitaDto {
   readonly odontologoId: number;
 
   @ApiProperty()
-  @IsDefined({ message: 'El campo tratamiento_id es obligatorio' })
-  @IsNumber({}, { message: 'El campo tratamiento_id debe ser de tipo number' })
-  readonly tratamientoId: number;
+  @IsDefined({ message: 'El campo servicio_id es obligatorio' })
+  @IsNumber({}, { message: 'El campo servicio_id debe ser de tipo number' })
+  readonly servicioId: number;
 }

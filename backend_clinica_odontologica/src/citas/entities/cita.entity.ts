@@ -21,14 +21,14 @@ export class Cita {
   @Column('varchar', { length: 50 })
   estado: string;
 
-  @Column('integer', { name: 'paciente_id' })
-  pacienteId: number;
+  @Column('integer', { name: 'cliente_id' })
+  clienteId: number;
 
   @Column('integer', { name: 'odontologo_id' })
   odontologoId: number;
 
-  @Column('integer', { name: 'tratamiento_id' })
-  tratamientoId: number;
+  @Column('integer', { name: 'servicio_id' })
+  servicioId: number;
 
   // Agregado para manejar un rango de tiempo
   @Column('timestamp', { name: 'fecha_hora_inicio' })
@@ -47,7 +47,8 @@ export class Cita {
   fechaEliminacion: Date;
 
   @ManyToOne(() => Paciente, paciente => paciente.citas)
-  @JoinColumn({ name: 'paciente_id', referencedColumnName: 'id' })
+  // La columna en la tabla se llama 'cliente_id'
+  @JoinColumn({ name: 'cliente_id', referencedColumnName: 'id' })
   paciente: Paciente;
 
   @ManyToOne(() => Odontologo, odontologo => odontologo.citas)
@@ -55,6 +56,7 @@ export class Cita {
   odontologo: Odontologo;
 
   @ManyToOne(() => Tratamiento, tratamiento => tratamiento.citas)
-  @JoinColumn({ name: 'tratamiento_id', referencedColumnName: 'id' })
+  // La columna en la tabla se llama 'servicio_id'
+  @JoinColumn({ name: 'servicio_id', referencedColumnName: 'id' })
   tratamiento: Tratamiento;
 }

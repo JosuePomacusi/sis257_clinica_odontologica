@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateEspecialidadeDto } from './create-especialidades.dto';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateEspecialidadDto } from './create-especialidad.dto';
 
-export class UpdateEspecialidadeDto extends PartialType(CreateEspecialidadeDto) {}
+export class UpdateEspecialidadDto extends PartialType(CreateEspecialidadDto) {}

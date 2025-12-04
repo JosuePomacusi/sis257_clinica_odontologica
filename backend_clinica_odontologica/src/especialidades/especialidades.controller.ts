@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { EspecialidadesService } from './especialidades.service';
-import { CreateEspecialidadeDto } from './dto/create-especialidades.dto';
-import { UpdateEspecialidadeDto } from './dto/update-especialidades.dto';
+import { CreateEspecialidadDto } from './dto/create-especialidad.dto';
+import { UpdateEspecialidadDto } from './dto/update-especialidad.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
+@ApiTags('Especialidades')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @Controller('especialidades')
 export class EspecialidadesController {
   constructor(private readonly especialidadesService: EspecialidadesService) {}
 
   @Post()
-  create(@Body() createEspecialidadeDto: CreateEspecialidadeDto) {
-    return this.especialidadesService.create(createEspecialidadeDto);
+  create(@Body() createEspecialidadDto: CreateEspecialidadDto) {
+    return this.especialidadesService.create(createEspecialidadDto);
   }
 
   @Get()
@@ -23,8 +28,8 @@ export class EspecialidadesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEspecialidadeDto: UpdateEspecialidadeDto) {
-    return this.especialidadesService.update(+id, updateEspecialidadeDto);
+  update(@Param('id') id: string, @Body() updateEspecialidadDto: UpdateEspecialidadDto) {
+    return this.especialidadesService.update(+id, updateEspecialidadDto);
   }
 
   @Delete(':id')
