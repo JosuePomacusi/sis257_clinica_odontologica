@@ -1,34 +1,5 @@
+
 <script setup lang="ts">
-import type { Odontologo } from '../../models/Odontologo' // Importamos el modelo
-import { ref, onMounted } from 'vue'
-import { useAuthStore } from '../../stores' // Acceso al odontologo autenticado
-import http from '../../plugins/axios'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import { useToast } from 'primevue/usetoast'; 
-
-const toast = useToast(); // Servicio de notificaciones
-
-const authStore = useAuthStore() // Obtener el odontologo autenticado
-const odontologo = ref<Odontologo | null>(null) // Especificamos que odontologo puede ser Odontologo o null
-
-const emit = defineEmits(['editar', 'cambiarPassword']) // Ahora incluye 'cambiarPassword'
-
-// Cargar los datos del odontologo autenticado desde el backend
-async function cargarOdontologoAutenticado() {
-  try {
-    odontologo.value = await http.get('odontologos/mi-perfil').then(res => res.data);
-    console.log('Datos del odontologo autenticado:', odontologo.value);
-  } catch (error) {
-    console.error('Error al cargar los datos del odontologo:', error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error al cargar datos',
-      detail: 'No se pudieron cargar los datos del odontólogo.',
-      life: 3000,
-    });
-  }
-}<script setup lang="ts">
 import type { Odontologo } from '../../models/Odontologo' // Importamos el modelo
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores' // Acceso al odontologo autenticado
