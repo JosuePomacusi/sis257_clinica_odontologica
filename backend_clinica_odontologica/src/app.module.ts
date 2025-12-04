@@ -12,6 +12,7 @@ import { OdontologoServiciosModule } from './odontologo_servicios/odontologo_ser
 import { HorariosModule } from './horarios/horarios.module';
 import { AuthModule } from './auth/auth.module';
 import { FeriadosModule } from './feriados/feriados.module';
+import { OdontologoTratamientosModule } from './odontologo_tratamientos/odontologo_tratamientos.module';
 import { HistorialMedicoModule } from './historial-medico/historial-medico.module';
 import { ConfiguracionModule } from './configuracion/configuracion.module';
 import { EspecialidadesModule } from './especialidades/especialidades.module';
@@ -43,6 +44,7 @@ import { FeriadosModule } from './feriados/feriados.module';
     HistorialMedicoModule,
     ConfiguracionModule,
     EspecialidadesModule,
+    OdontologoTratamientosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

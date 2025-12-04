@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { HistorialMedicoService } from './historial-medico.service';
 import { CreateHistorialMedicoDto } from './dto/create-historial-medico.dto';
 import { UpdateHistorialMedicoDto } from './dto/update-historial-medico.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('historial-medico')
+@ApiTags('Historiales_Médicos')
+@Controller('historiales-medicos')
 export class HistorialMedicoController {
   constructor(private readonly historialMedicoService: HistorialMedicoService) {}
 
