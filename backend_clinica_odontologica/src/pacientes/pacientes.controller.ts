@@ -16,7 +16,7 @@ import { UpdatePacienteDto } from './dto/update-paciente.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@ApiBearerAuth()
+//@ApiBearerAuth()
 @ApiTags('Pacientes')
 @Controller('pacientes')
 export class PacientesController {
