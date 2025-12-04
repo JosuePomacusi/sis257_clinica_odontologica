@@ -23,7 +23,7 @@ export class PacientesController {
   constructor(private readonly pacientesService: PacientesService) {}
 
   @Get('mi-perfil')
-  @ApiBearerAuth()
+  //@ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async findAuthenticatedUser(@Req() req: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
@@ -33,7 +33,7 @@ export class PacientesController {
   }
 
   @Post('cambiar-password')
-  @ApiBearerAuth()
+  //@ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async cambiarPassword(
     @Req() req: any,

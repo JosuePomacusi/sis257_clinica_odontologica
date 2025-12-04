@@ -24,7 +24,7 @@ export class OdontologosController {
 
   @Get('mi-perfil')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  //@ApiBearerAuth()
   async findAuthenticatedUser(@Req() req: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const userId = req.user.id; // Extrae el ID del usuario autenticado desde el token
@@ -33,7 +33,7 @@ export class OdontologosController {
 
   @Post('cambiar-password')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  //@ApiBearerAuth()
   async cambiarPassword(
     @Req() req: any,
     @Body() body: { passwordActual: string; nuevaPassword: string },

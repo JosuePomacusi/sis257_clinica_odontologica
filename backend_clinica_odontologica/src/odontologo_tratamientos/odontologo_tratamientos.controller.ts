@@ -17,7 +17,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OdontologoTratamiento } from './entities/odontologo_tratamiento.entity';
 
-@ApiBearerAuth()
+//@ApiBearerAuth()
 @ApiTags('Odontólogo_Tratamientos')
 @Controller('odontologos_tratamientos')
 export class OdontologoTratamientosController {
