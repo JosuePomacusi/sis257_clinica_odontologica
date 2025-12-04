@@ -13,3 +13,4 @@ import { Tratamiento } from 'src/tratamientos/entities/tratamiento.entity';
   exports: [OdontologoTratamientosService],
 })
 export class OdontologoTratamientosModule {}
+s
