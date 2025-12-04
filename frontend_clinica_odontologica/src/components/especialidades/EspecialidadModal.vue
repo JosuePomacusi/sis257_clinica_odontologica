@@ -8,123 +8,86 @@ import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 
-// --- Definiciones de Tipo ---
-// Usamos Omit para asegurar que solo manejamos los datos necesarios para la creación.
-type NuevaEspecialidad = Omit<Especialidad, 'id'>
-
-// --- Composición de Vue ---
 const toast = useToast()
-const isSaving = ref(false) // Controla el estado de guardado (deshabilitar botones, spinner)
 
-// 1. Props y Emits
 const props = defineProps({
-  // Se usa 'mostrar' para la visibilidad (compatible con el código original)
-  mostrar: {
-    type: Boolean,
-    required: true,
-  },
+  mostrar: Boolean,
 })
-const emit = defineEmits<{
-  (e: 'guardar'): void // Emitido al guardar exitosamente
-  (e: 'update:mostrar', value: boolean): void // Permite usar v-model:mostrar en el padre
-}>()
+const emit = defineEmits(['guardar', 'close'])
 
-// 2. Estado Reactivo del Formulario
-const defaultEspecialidad: NuevaEspecialidad = {
-  nombre: '',
-  descripcion: '',
-}
-
-const especialidad = ref<NuevaEspecialidad>({ ...defaultEspecialidad })
-
-// 3. Propiedad Computada para el Control del Diálogo (v-model)
 const dialogVisible = computed({
   get: () => props.mostrar,
-  set: (value) => {
-    emit('update:mostrar', value)
+  set: value => {
+    if (!value) emit('close')
   },
 })
 
-// 4. Lógica de Reinicio del Formulario y Estado
-watch(dialogVisible, (visible) => {
+const especialidad = ref<Partial<Especialidad>>({
+  nombre: '',
+  descripcion: '',
+})
+
+watch(dialogVisible, visible => {
   if (!visible) {
-    // Resetear el formulario al cerrar el diálogo
-    especialidad.value = { ...defaultEspecialidad }
-    isSaving.value = false // Asegurar que el estado de guardado se reinicie
+    especialidad.value = { nombre: '', descripcion: '' }
   }
 })
 
-// 5. Lógica de Validación
-function validateForm(): boolean {
-  if (!especialidad.value.nombre.trim()) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Campo Requerido',
-      detail: 'El nombre de la especialidad es obligatorio',
-      life: 3000,
-    })
-    return false
-  }
-  return true
-}
-
-// 6. Lógica de Guardado
 async function handleSave() {
-  if (!validateForm()) return
-
-  isSaving.value = true // Inicia el estado de guardado
-
   try {
-    const dataToSend = {
-      nombre: especialidad.value.nombre.trim(),
-      descripcion: especialidad.value.descripcion?.trim() || '',
+    if (!especialidad.value.nombre?.trim()) {
+      toast.add({
+        severity: 'warn',
+        summary: 'Campo requerido',
+        detail: 'El nombre de la especialidad es obligatorio',
+        life: 3000,
+      })
+      return
     }
 
-    await http.post('especialidades', dataToSend)
+    await http.post('especialidades', {
+      nombre: especialidad.value.nombre,
+      descripcion: especialidad.value.descripcion || '',
+    })
 
     toast.add({
       severity: 'success',
-      summary: 'Éxito',
-      detail: `Especialidad "${dataToSend.nombre}" creada correctamente.`,
+      summary: 'Especialidad Creada',
+      detail: 'La especialidad se ha creado correctamente',
       life: 3000,
     })
 
-    emit('guardar') // Notifica al padre que se ha guardado
-    dialogVisible.value = false // Cierra el diálogo
+    emit('guardar')
+    especialidad.value = { nombre: '', descripcion: '' }
+    dialogVisible.value = false
   } catch (error: any) {
-    console.error('Error al guardar la especialidad:', error)
     toast.add({
       severity: 'error',
-      summary: 'Error de Creación',
-      detail: error?.response?.data?.message || 'No se pudo crear la especialidad. Inténtalo de nuevo.',
-      life: 5000, // Aumentamos la vida del mensaje de error
+      summary: 'Error',
+      detail:
+        error?.response?.data?.message || 'No se pudo crear la especialidad',
+      life: 3000,
     })
-  } finally {
-    isSaving.value = false // Finaliza el estado de guardado, incluso si hay error
   }
-}
-
-function handleClose() {
-  // Función helper para cerrar el diálogo
-  dialogVisible.value = false
 }
 </script>
 
 <template>
   <Dialog
     v-model:visible="dialogVisible"
-    header="Crear Nueva Especialidad"
+    header="Nueva Especialidad"
     :modal="true"
-    :closable="!isSaving"
+    :closable="true"
     :draggable="false"
     class="custom-dialog"
     style="width: 500px; max-width: 95vw"
   >
-    <form @submit.prevent="handleSave" class="form-container">
+    <div class="form-container">
+      <!-- Nombre -->
       <div class="form-field">
         <label for="nombre" class="form-label">
           <i class="pi pi-heart-fill"></i>
-          Nombre de la Especialidad <span class="required-star">*</span>
+          Nombre de la Especialidad *
         </label>
         <InputText
           id="nombre"
@@ -133,27 +96,26 @@ function handleClose() {
           class="form-input"
           autocomplete="off"
           autofocus
-          required
-          :disabled="isSaving"
         />
       </div>
 
+      <!-- Descripción -->
       <div class="form-field">
         <label for="descripcion" class="form-label">
           <i class="pi pi-align-left"></i>
-          Descripción (Opcional)
+          Descripción
         </label>
         <Textarea
           id="descripcion"
           v-model="especialidad.descripcion"
           rows="4"
-          placeholder="Describe brevemente esta especialidad"
+          placeholder="Describe brevemente esta especialidad (opcional)"
           class="form-textarea"
           autocomplete="off"
-          :disabled="isSaving"
         />
       </div>
 
+      <!-- Botones -->
       <div class="form-actions">
         <Button
           type="button"
@@ -161,32 +123,26 @@ function handleClose() {
           icon="pi pi-times"
           severity="secondary"
           class="btn-cancel"
-          :disabled="isSaving"
-          @click="handleClose"
+          @click="dialogVisible = false"
         />
         <Button
-          type="submit"
-          :label="isSaving ? 'Guardando...' : 'Crear Especialidad'"
-          :icon="isSaving ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          type="button"
+          label="Crear Especialidad"
+          icon="pi pi-check"
           class="btn-save"
-          :disabled="isSaving || !especialidad.nombre.trim()"
+          @click="handleSave"
         />
       </div>
-    </form>
+    </div>
   </Dialog>
 </template>
 
 <style scoped>
-/* ------------------------------------------- */
-/* --- ESTILOS MEJORADOS (Mayor claridad) --- */
-/* ------------------------------------------- */
-
 .custom-dialog :deep(.p-dialog-header) {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 1.5rem;
   border-radius: 12px 12px 0 0;
-  font-weight: 700;
 }
 
 .custom-dialog :deep(.p-dialog-header-icon) {
@@ -206,7 +162,6 @@ function handleClose() {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  animation: slideIn 0.3s ease-out; /* Mantenemos la animación */
 }
 
 .form-field {
@@ -217,7 +172,7 @@ function handleClose() {
 
 .form-label {
   font-weight: 600;
-  color: #374151; /* Color oscuro para mayor legibilidad (WCAG) */
+  color: #bac1cd;
   font-size: 0.95rem;
   display: flex;
   align-items: center;
@@ -225,29 +180,34 @@ function handleClose() {
 }
 
 .form-label i {
-  color: #667eea; /* Color de acento en los iconos */
+  color: #b6baca;
   font-size: 1rem;
-}
-
-.required-star {
-  color: #ef4444; /* Rojo para el asterisco de requerido */
-  font-weight: bold;
-  margin-left: 0.25rem;
 }
 
 .form-input,
 .form-textarea {
   width: 100%;
   border-radius: 8px;
-  border: 1px solid #d1d5db; /* Borde más sutil */
+  border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
-  padding: 0.75rem 1rem;
 }
 
 .form-input:focus,
 .form-textarea:focus {
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input:hover,
+.form-textarea:hover {
+  border-color: #cbd5e0;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  padding: 0.75rem;
+  font-family: inherit;
 }
 
 .form-actions {
@@ -256,12 +216,12 @@ function handleClose() {
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0; /* Borde más sutil */
+  border-top: 2px solid #e2e8f0;
 }
 
 .btn-cancel {
-  background-color: #f3f4f6 !important;
-  color: #4b5563 !important;
+  background-color: #e2e8f0 !important;
+  color: #4a5568 !important;
   border: none !important;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
@@ -269,8 +229,9 @@ function handleClose() {
 }
 
 .btn-cancel:hover {
-  background-color: #e5e7eb !important;
-  transform: translateY(-1px);
+  background-color: #cbd5e0 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-save {
@@ -282,16 +243,8 @@ function handleClose() {
 }
 
 .btn-save:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
-}
-
-/* Estado deshabilitado para UX (mejor visibilidad) */
-.btn-save[disabled] {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* Responsive */
@@ -308,5 +261,21 @@ function handleClose() {
   .btn-save {
     width: 100%;
   }
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-container {
+  animation: slideIn 0.3s ease-out;
 }
 </style>
